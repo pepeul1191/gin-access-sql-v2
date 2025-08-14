@@ -1,6 +1,7 @@
 package common
 
 import (
+	"accessv2/pkg/middleware"
 	"fmt"
 	"net/http"
 
@@ -17,23 +18,14 @@ func NewCommonHandler() *CommonHandler {
 
 func (h *CommonHandler) Home(c *gin.Context) {
 	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+
 	c.HTML(http.StatusOK, "home.html", gin.H{
-		"title":   "Página Principal",
-		"globals": globals,
+		"title":    "Página Principal",
+		"globals":  globals,
+		"nav_link": "",
+		"session":  sessionData.(middleware.SessionData),
 	})
-}
-
-func (h *CommonHandler) SignIn(c *gin.Context) {
-	globals, _ := c.Get("globals")
-	c.HTML(http.StatusOK, "sign-in.html", gin.H{
-		"title":   "Bienvenido",
-		"globals": globals,
-	})
-}
-
-func (h *CommonHandler) SignOut(c *gin.Context) {
-	// Lógica de cierre de sesión
-	c.Redirect(http.StatusFound, "/")
 }
 
 func (h *CommonHandler) NotFound(c *gin.Context) {
