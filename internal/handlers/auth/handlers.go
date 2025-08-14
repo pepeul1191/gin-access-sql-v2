@@ -30,9 +30,12 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 		flashes := session.Flashes("error")
 		session.Save()
 
+		csrfToken, _ := c.Get("csrf_token")
+
 		c.HTML(http.StatusOK, "sign-in.html", gin.H{
 			"title":       "Iniciar Sesión",
 			"globals":     globals,
+			"csrfToken":   csrfToken,
 			"flash_error": utils.FirstFlashOrEmpty(flashes),
 		})
 		return

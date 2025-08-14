@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.title}}</title>
+  <link rel="icon" href="{{.globals.StaticURL}}/favicon.ico" type="image/x-icon">
+  
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/vendor.min.css">
+  <style>
+    .error-container {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      flex-direction: column;
+    }
+
+    .fw-bold{
+      color: var(--primary-color);
+    }
+
+    .fa{
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="error-container">
+      <h1 class="display-1 fw-bold">403</h1>
+      <h2 class="mb-3">¡Oops! Creo que falta algo</h2>
+      <p class="text-muted">{{.message}}</p>
+      <a href="#" id="backBtn" class="btn btn-primary mt-3">
+        <i class="fa fa-arrow-left icon-left-margin" aria-hidden="true"></i> Volver atrás
+      </a>
+    </div>
+  </div>
+
+  <script>
+    // Alternativa: puedes usar este enfoque si prefieres mantener el ícono de home
+    document.addEventListener('DOMContentLoaded', function() {
+      const backBtn = document.getElementById('backBtn');
+      
+      backBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Verificar si hay historial previo
+        if (window.history.length > 1) {
+          // Regresar a la página anterior
+          window.history.back();
+        } else {
+          // Si no hay historial, redirigir al inicio
+          window.location.href = "{{.globals.BaseURL}}/";
+        }
+      });
+    });
+  </script>
+</body>
+</html>

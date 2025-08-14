@@ -19,23 +19,13 @@
     .fw-bold{
       color: var(--primary-color);
     }
+
+    .fa{
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="message-container">
-      <h2 class="mb-3">Ha cerrado su sessión</h2>
-      <p class="text-muted">Si no eres redirigido automáticamente a la página de inicio, haz clic en el botón de abajo.</p>
-      <a href="/sign-in" class="btn btn-primary mt-3">
-        <i class="fa fa-home icon-left-margin" aria-hidden="true"></i> Ir al inicio
-      </a>
-    </div>
-  </div>
-  <script>
-    localStorage.clear();
-    setTimeout(() => {
-      window.location.href = "/sign-in";
-    }, 3000);
-  </script>
+  {{template "content_message_center" .}}
 </body>
 </html>

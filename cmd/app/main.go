@@ -3,9 +3,10 @@ package main
 
 import (
 	"accessv2/config"
+
 	"log"
 
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/cookie" // Importar el store de cookies
 )
 
 func main() {
@@ -16,8 +17,7 @@ func main() {
 	}
 
 	// Configuración del session store usando gin-contrib/sessions
-	store := cookie.NewStore([]byte("tu-clave-secreta"))
-
+	store := cookie.NewStore([]byte("clave-secreta-de-32-bytes"))
 	// Configuración de rutas
 	router := config.SetupRouter(store)
 
