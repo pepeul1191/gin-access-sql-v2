@@ -2,13 +2,13 @@
 package main
 
 import (
-	"accessv2/internal/routes"
+	"accessv2/config"
 	"log"
 )
 
 func main() {
 	// Configuración de rutas
-	router := routes.SetupRouter()
+	router := config.SetupRouter()
 	// Vistas
 	router.LoadHTMLGlob("templates/*.html")
 	// Inicia servidor
