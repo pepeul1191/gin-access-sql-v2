@@ -24,7 +24,11 @@ func (h *CommonHandler) Home(c *gin.Context) {
 }
 
 func (h *CommonHandler) SignIn(c *gin.Context) {
-	c.HTML(http.StatusOK, "sign-in.html", gin.H{})
+	globals, _ := c.Get("globals")
+	c.HTML(http.StatusOK, "sign-in.html", gin.H{
+		"title":   "Bienvenido",
+		"globals": globals,
+	})
 }
 
 func (h *CommonHandler) SignOut(c *gin.Context) {

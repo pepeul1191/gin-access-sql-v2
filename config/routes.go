@@ -6,9 +6,10 @@ import (
 	"accessv2/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(store sessions.Store) *gin.Engine {
 	router := gin.Default()
 	// Middleware de variables globales
 	router.Use(middleware.GlobalVarsMiddleware())
@@ -17,7 +18,7 @@ func SetupRouter() *gin.Engine {
 	//authHandler := auth.NewAuthHandler() // Asumiendo que tienes este handler
 
 	// Registrar rutas de cada módulo
-	common.RegisterCommonRoutes(router, commonHandler)
+	common.RegisterCommonRoutes(router, commonHandler, store)
 	//auth.RegisterAuthRoutes(router, authHandler) // Ejemplo para auth
 
 	return router

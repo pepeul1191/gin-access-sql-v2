@@ -1,10 +1,15 @@
 package common
 
-import "github.com/gin-gonic/gin"
+import (
+	"accessv2/pkg/middleware"
 
-func RegisterCommonRoutes(r *gin.Engine, handler *CommonHandler) {
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/sessions"
+)
+
+func RegisterCommonRoutes(r *gin.Engine, handler *CommonHandler, store sessions.Store) {
 	// Rutas públicas
-	r.GET("/", handler.Home)
+	r.GET("/", middleware.AuthRequired(store), handler.Home)
 	r.GET("/sign-in", handler.SignIn)
 	r.GET("/sign-out", handler.SignOut)
 

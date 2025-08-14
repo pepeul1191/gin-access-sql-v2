@@ -5,6 +5,8 @@ import (
 	"accessv2/config"
 
 	"log"
+
+	"github.com/gorilla/sessions"
 )
 
 func main() {
@@ -13,8 +15,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error al inicializar la base de datos: %v", err)
 	}
+	// Configuración del session store
+	store := sessions.NewCookieStore([]byte("tu-clave-secreta"))
 	// Configuración de rutas
-	router := config.SetupRouter()
+	router := config.SetupRouter(store)
 	// Vistas
 	router.LoadHTMLGlob("templates/**/*")
 	// Archivos estáticos
