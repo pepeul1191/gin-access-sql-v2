@@ -1,13 +1,36 @@
 package common
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
 
-func RegisterCommonRoutes(r *gin.Engine, handler *CommonHandler) {
-	// Rutas públicas
-	r.GET("/", handler.Home)
-	r.GET("/sign-in", handler.SignIn)
-	r.GET("/sign-out", handler.SignOut)
+	"github.com/gin-gonic/gin"
+)
 
-	// Manejo de 404 (debe ser la última ruta)
-	r.NoRoute(handler.NotFound)
+type CommonHandler struct {
+	// Dependencias si las necesitas (ej: templates, servicios)
+}
+
+func NewCommonHandler() *CommonHandler {
+	return &CommonHandler{}
+}
+
+func (h *CommonHandler) Home(c *gin.Context) {
+	c.HTML(http.StatusOK, "home.html", gin.H{
+		"title": "Página Principal",
+	})
+}
+
+func (h *CommonHandler) SignIn(c *gin.Context) {
+	c.HTML(http.StatusOK, "sign-in.html", gin.H{})
+}
+
+func (h *CommonHandler) SignOut(c *gin.Context) {
+	// Lógica de cierre de sesión
+	c.Redirect(http.StatusFound, "/")
+}
+
+func (h *CommonHandler) NotFound(c *gin.Context) {
+	c.HTML(http.StatusNotFound, "404.html", gin.H{
+		"title": "Página no encontrada",
+	})
 }

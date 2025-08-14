@@ -56,11 +56,28 @@ Instalar dependencias de go:
 
 ### Archivo .env
 
-    DB=sqlite:db/app.db
-    JWT_SECRET=k8sT!mZ$4KpQbR7sCv2EaXw&9LpQ
-    DATABASE_URL=db/app.db
-    HTTP_X_AUTH_ADMIN_TRIGGER=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
-    HTTP_X_AUTH_TRIGGER=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
+    #### DBMATE
+    DB=db/app.db
+    #### GORM
+    DB_DRIVER=sqlite
+    DB_NAME=db/app.db
+    # Para otros motores de BD:
+    # DB_HOST=localhost
+    # DB_PORT=5432
+    # DB_USER=user
+    # DB_PASSWORD=pass
+    # DB_SSL_MODE=disable
+    #### SEGURIDAD
+    JWT_SECRET=mi_secreto_jwt_fuerte
+    AUTH_HEADER=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
+    PORT=5000
+    SECURE=false
+    MAX_FILE_SIZE_MB=5
+    ALLOWED_FILE_EXTENSIONS=pdf,jpg,png,docx,jpeg
+    ALLOWED_ORIGINS=https://tudominio.com,http://localhost:8000
+    ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS
+    ALLOWED_HEADERS=Content-Type,Authorization,X-Requested-With
+    CORS_ENABLED=true
     
 ### Migraciones con DBMATE
 
@@ -106,6 +123,38 @@ Generar UMLs:
 
     $ chmod +x scripts/render_all_puml.sh
     $ ./scripts/render_all_puml.sh
+
+
+project/
+├── cmd/
+│   └── app/
+│       └── main.go          # Punto de entrada
+├── internal/
+│   ├── domain/              # Modelos del dominio
+│   │   ├── user.go
+│   │   └── file.go
+│   ├── handlers/            # Controladores HTTP
+│   │   ├── auth_handler.go
+│   │   ├── file_handler.go
+│   │   └── handler.go       # Base handler
+│   ├── forms/               # Estructuras de validación
+│   │   ├── auth_form.go
+│   │   └── file_form.go
+│   ├── services/            # Lógica de negocio
+│   │   ├── auth_service.go
+│   │   ├── file_service.go
+│   │   └── interfaces.go    # Interfaces de servicios
+│   ├── repositories/        # Acceso a datos
+│   │   ├── user_repo.go
+│   │   └── file_repo.go
+│   └── config/              # Configuración
+│       └── config.go
+├── pkg/
+│   ├── middleware/          # Middlewares
+│   └── utils/               # Utilidades compartidas
+├── go.mod
+├── go.sum
+└── README.md
 
 ---
 
