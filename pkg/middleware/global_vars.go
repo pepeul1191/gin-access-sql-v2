@@ -11,10 +11,11 @@ import (
 )
 
 type GlobalVars struct {
-	AppName           string
-	CurrentYear       int
-	Env               string // "development", "production", etc.
-	GoogleAnalyticsID string
+	AppName     string
+	CurrentYear int
+	Env         string // "development", "production", etc.
+	BaseURL     string
+	StaticURL   string
 	// Agrega aquí todas las variables globales que necesites
 }
 
@@ -30,6 +31,8 @@ func GlobalVarsMiddleware() gin.HandlerFunc {
 		// Inyecta variables globales desde .env o sistema
 		globals := GlobalVars{
 			AppName:     os.Getenv("APP_NAME"),
+			BaseURL:     os.Getenv("BASE_URL"),
+			StaticURL:   os.Getenv("STATIC_URL"),
 			CurrentYear: time.Now().Year(),
 		}
 

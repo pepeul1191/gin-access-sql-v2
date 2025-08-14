@@ -1,4 +1,3 @@
-// config/routes.go
 package common
 
 import "github.com/gin-gonic/gin"

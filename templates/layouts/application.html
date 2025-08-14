@@ -1,10 +1,89 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>{{.Title}}</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{{.globals.StaticURL}}/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/simplemde.min.css">
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/vendor.min.css">
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/app.min.css">
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/css/dashboard.css">
+  <title>{{.title}}</title>
+  <script>
+    const URLS = {
+      BASE: "{{.globals.BaseURL | js}}",
+      STATIC: "{{.globals.StaticURL | js}}",
+    }
+  </script>
+  <!-- extra_header --> 
+  {{template "extra_header" .}}
 </head>
-<body>
-  XD
-  {{template "content" .}}  <!-- El contenido específico de cada vista -->
+<body class="dashboard-layout">
+  <div class="wrapper">
+    <!-- Navbar Partial -->
+    {{template "navbar.html" .}}
+    <!-- Sidebar Partial -->
+    {{template "sidebar.html" .}}
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+      {{template "content" .}}
+    </div>
+  </div>
+  <script src="{{.globals.StaticURL}}dist/simplemde.min.js"></script>
+  <script src="{{.globals.StaticURL}}dist/vendor.js"></script>
+  <script src="{{.globals.StaticURL}}dist/app.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const sidebar = document.querySelector('.sidebar');
+      const mainContent = document.querySelector('.main-content');
+      
+      // Verificar el estado inicial en localStorage
+      let isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+      
+      // Función para actualizar el estado
+      function updateSidebarState() {
+        if (window.innerWidth <= 992) {
+          // En móvil: siempre empezar colapsado
+          sidebar.classList.add('collapsed');
+        } else {
+          // En desktop: usar el estado guardado
+          sidebar.classList.toggle('collapsed', isCollapsed);
+        }
+      }
+      
+      // Aplicar estado inicial
+      updateSidebarState();
+      
+      // Evento click del toggle
+      sidebarToggle.addEventListener('click', function() {
+        if (window.innerWidth <= 992) {
+          // En móvil: toggle simple
+          sidebar.classList.toggle('collapsed');
+        } else {
+          // En desktop: guardar preferencia
+          isCollapsed = !isCollapsed;
+          localStorage.setItem('sidebarCollapsed', isCollapsed);
+          sidebar.classList.toggle('collapsed');
+        }
+      });
+      
+      // Cerrar sidebar al hacer clic en enlaces (solo móvil)
+      document.querySelectorAll('.sidebar .nav-link').forEach(link => {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 992) {
+            sidebar.classList.add('collapsed');
+          }
+        });
+      });
+      
+      // Actualizar al cambiar tamaño de pantalla
+      window.addEventListener('resize', function() {
+        updateSidebarState();
+      });
+    });
+  </script>
+  <!-- extra_footer --> 
+  {{template "extra_footer" .}}
 </body>
 </html>

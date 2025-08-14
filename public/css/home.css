@@ -1,0 +1,31 @@
+.hero-section {
+  background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('{% static "img/tech-bg.jpg" %}');
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 100px 0;
+}
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #0d6efd;
+}
+.testimonial-img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+}
+
+/* Estilos personalizados para el footer */
+.hover-white:hover {
+  color: white !important;
+}
+
+.text-white-50 {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.text-muted {
+  --bs-text-opacity: 1;
+  color: #fff !important;
+}

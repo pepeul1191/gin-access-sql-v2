@@ -17,6 +17,8 @@ func main() {
 	router := config.SetupRouter()
 	// Vistas
 	router.LoadHTMLGlob("templates/**/*")
+	// Archivos estáticos
+	router.Static("/public", "./public")
 	// Inicia servidor
 	log.Println("Servidor iniciado en :8080")
 	// Iniciar servidor
