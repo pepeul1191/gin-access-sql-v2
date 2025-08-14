@@ -15,8 +15,10 @@ func NewCommonHandler() *CommonHandler {
 }
 
 func (h *CommonHandler) Home(c *gin.Context) {
+	globals, _ := c.Get("globals")
 	c.HTML(http.StatusOK, "home.html", gin.H{
-		"title": "Página Principal",
+		"title":   "Página Principal",
+		"globals": globals,
 	})
 }
 

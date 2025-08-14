@@ -2,5 +2,7 @@
 {{define "content"}}
     {{template "header.html" .}}
     <main>Contenido...</main>
+    ga('create', '{{.globals.AppName}}', 'auto');
+    ga('entorno', '{{.globals.Env}}', 'auto');
     {{template "footer.html" .}}
 {{end}}

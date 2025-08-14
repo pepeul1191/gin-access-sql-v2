@@ -1,14 +1,17 @@
+// config/routes.go
 package config
 
 import (
 	"accessv2/internal/handlers/common"
+	"accessv2/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
-
+	// Middleware de variables globales
+	router.Use(middleware.GlobalVarsMiddleware())
 	// Handlers
 	commonHandler := common.NewCommonHandler()
 	//authHandler := auth.NewAuthHandler() // Asumiendo que tienes este handler
