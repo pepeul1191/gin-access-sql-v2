@@ -1,0 +1,18 @@
+-- migrate:up
+
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (1, 'bmccormick', '123', '1xk3WYH9Pu8zNNKpPpm4vk8QVXfBme', 'rkXXXpcwdYJuNkl9chj99dGMXXmdkO', 'amandabaker@example.org', 0, '2025-05-25 03:53:01', '2025-06-13 03:53:01');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (2, 'ndougherty', '123', '85rAo8UyEhWM2Ou0cyIVDg4pVvZ7ni', 'znh35jQm54ygBtolH3OI3KpJ1n4gIf', 'joysmith@example.net', 1, '2020-07-27 15:50:29', '2020-08-16 15:50:29');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (3, 'vthompson', '123', 'yLw3Y9Ou1OoiH3ugQrH9WLYS6uColE', 'B2K0bhG2yFLlpMXr4DJZo9uOlaqqMh', 'upace@example.com', 1, '2025-02-13 20:21:30', '2025-03-10 20:21:30');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (4, 'rmatthews', '123', '88PLjPf1BwipqFyLmVeAmMBBAUchnl', 'QB9gYnp8KAP0LzJxNz57bzJz1yOvKj', 'jennifer13@example.net', 0, '2021-01-07 17:00:04', '2021-02-01 17:00:04');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (5, 'victoriamiller', '123', '1etnUb5zEkVFlE2e8Nyuk6N18AqyEo', 'JPyIUgMNaMbZiE3Qs1l8Fq3SYQMKtA', 'sallen@example.net', 1, '2021-07-17 16:04:19', '2021-08-02 16:04:19');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (6, 'david75', '123', 'ebRVP0ZPS4CT9lXuLQIP0O95R91lgY', 'wkDZdm7VNq9t9Bcy3q0HLnwpjy5gnH', 'cory82@example.com', 0, '2022-04-17 22:12:37', '2022-04-19 22:12:37');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (7, 'keithmorris', '123', '0keaAG7lqXD6NznzVPWExxuOXgkVIX', 'UmvQFjooZopaC4RkeFGGDzsYpljXxM', 'michaelbailey@example.com', 0, '2022-04-24 17:56:38', '2022-05-01 17:56:38');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (8, 'shafferjason', '123', 'FQdDsle3hC143o09v1u3yKWUQHq940', '66vKLMOndypz5MorajNX7yhgUCRvjI', 'travis84@example.org', 0, '2024-02-13 19:42:42', '2024-02-20 19:42:42');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (9, 'rmeadows', '123', 'oPvRbSIqYOaIrHNsdNesytvxpoI8UP', 'Af8R99r16hzS3l8n37PDSWJZZjQrgx', 'curryjennifer@example.net', 1, '2024-03-12 03:30:19', '2024-04-01 03:30:19');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (10, 'smithsandra', '123', 'BRoI3BWlipQAzxbHna0F6ZzecBDoK5', 'YwVM2wsqcQFgHrZ9Nsc0FdsqYVlZ7y', 'smithrebecca@example.org', 0, '2023-03-16 04:08:28', '2023-03-31 04:08:28');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (11, 'alison91', '123', 'graDWtyOoyBpV4MfFIzDzFmXoFcjeY', 'KEJYXCPYc2Mknv8tB0s3CayMOOR4fP', 'hooverjustin@example.org', 1, '2022-10-21 01:11:46', '2022-11-19 01:11:46');
+INSERT INTO users (id, username, password, activation_key, reset_key, email, activated, created, updated) VALUES (12, 'snyderpaul', '123', 'F87vAivNQuzGo9aiJpiAwirYLBEeLc', 'Fe9yihnBOfxkWpSNWsFMxRqBRIvx7k', 'kingchristian@example.org', 1, '2021-06-29 01:25:58', '2021-07-24 01:25:58');
+
+-- migrate:down
+
+DELETE FROM users;

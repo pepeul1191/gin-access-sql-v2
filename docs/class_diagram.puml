@@ -1,0 +1,76 @@
+@startuml
+
+class User {
+  - id: int
+  - name: String
+  - password: String
+  - activation_key: String
+  - reset_key: String
+  - email: String
+  - activated: Boolean
+  - created: DateTime
+  - updated: DateTime
+}
+
+class System {
+  - id: int
+  - name: String
+  - description: String
+  - repository: String
+  - created: DateTime
+  - updated: DateTime
+}
+
+class Role {
+  - id: int
+  - name: String
+  - description: String
+  - created: DateTime
+  - updated: DateTime
+  - systemId: int
+}
+
+class Role {
+  - id: int
+  - name: String
+  - description: String
+  - created: DateTime
+  - updated: DateTime
+  - roleId: int
+}
+
+class SystemUser {
+  - id: int
+  - system_id: int
+  - user_id: int
+  - created: DateTime
+}
+
+class SystemUserPermission {
+  - id: int
+  - created: DateTime
+  - system_id: int
+  - user_id: int
+  - permission_id: int
+}
+
+class SystemUserRole {
+  - id: int
+  - created: DateTime
+  - system_id: int
+  - user_id: int
+  - role_id: int
+}
+
+System "1" -- "m" Role
+Role "1" -- "m" Permission
+User "1" -- "m" SystemUser
+System "1" -- "m" SystemUser
+User "1" -- "m" SystemUserPermission
+System "1" -- "m" SystemUserPermission
+Permission "1" -- "m" SystemUserPermission
+User "1" -- "m" SystemUserRole
+System "1" -- "m" SystemUserRole
+Role "1" -- "m" SystemUserRole
+
+@enduml

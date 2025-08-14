@@ -1,4 +1,46 @@
+# Archivos binarios compilados
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Archivos de build
+/build/
+bin/
+dist/
+
+# Archivos de caché y temporales
+*.log
+*.tmp
+*.swp
+*.DS_Store
+*.idea/
+*.vscode/
+
+# Dependencias de Go en caché
+vendor/
+
+# Archivos del sistema operativo
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Archivos del entorno Go
+# (Go modules mantiene go.mod y go.sum, que SÍ deben versionarse)
+Gopkg.lock
+Gopkg.toml
+
+# Test coverage
+coverage.out
+
+# Archivos de depuración
+*.prof
+*.pprof
+
 .env
 node_modules
-uploads
-*.mp4
+scripts/_*.sql
+public/fonts
