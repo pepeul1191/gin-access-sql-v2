@@ -1,6 +1,7 @@
 package common
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -32,7 +33,18 @@ func (h *CommonHandler) SignOut(c *gin.Context) {
 }
 
 func (h *CommonHandler) NotFound(c *gin.Context) {
-	c.HTML(http.StatusNotFound, "404.html", gin.H{
-		"title": "Página no encontrada",
-	})
+	if c.Request.Method == "GET" {
+		globals, _ := c.Get("globals")
+		c.HTML(http.StatusNotFound, "404.html", gin.H{
+			"title":   "Página no encontrada",
+			"path":    c.Request.URL.Path,
+			"globals": globals,
+		})
+	} else {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error":   "not_found",
+			"message": fmt.Sprintf("El recurso %s no existe", c.Request.URL.Path),
+			"path":    c.Request.URL.Path,
+		})
+	}
 }

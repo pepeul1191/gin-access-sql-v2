@@ -5,71 +5,26 @@
 
   <ul class="nav flex-column">
     <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link ""}}active{{end}}" href="/management">
+      <a class="nav-link {{if eq .nav_link ""}}active{{end}}" href="/">
         <i class="fa fa-home me-2"></i> Inicio
       </a>
     </li>
 
     <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "locations"}}active{{end}}" href="/management/locations">
-        <i class="fa fa-map me-2"></i> Locaciones
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "tags"}}active{{end}}" href="/management/tags">
-        <i class="fa fa-tag me-2"></i> Etiquetas
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "enterprises"}}active{{end}}" href="/management/enterprises">
-        <i class="fa fa-industry me-2"></i> Empresas
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "employees"}}active{{end}}" href="/management/employees">
-        <i class="fa fa-user me-2"></i> Empleados
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "assets"}}active{{end}}" href="/management/assets">
-        <i class="fa fa-cube me-2"></i> Activos
-      </a>
-    </li>
-
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "roles"}}active{{end}}" href="/management/roles">
-        <i class="fa fa-list me-2"></i> Roles de Usuarios
+      <a class="nav-link {{if eq .nav_link "systems"}}active{{end}}" href="/systems">
+        <i class="fa fa-cogs me-2"></i> Sistemas
       </a>
     </li>
     
     <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "users"}}active{{end}}" href="/management/users">
+      <a class="nav-link {{if eq .nav_link "users"}}active{{end}}" href="/users">
         <i class="fa fa-users me-2"></i> Usuarios
       </a>
     </li>
-    
+
     <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "products"}}active{{end}}" href="#productosSubmenu" data-bs-toggle="collapse">
-        <i class="fa fa-cubes me-2"></i> Productos
-      </a>
-      <ul id="productosSubmenu" class="collapse nav flex-column ps-4">
-        <li class="nav-item">
-          <a class="nav-link {{if eq .nav_link "products_list"}}active{{end}}" href="/management/products">Lista</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link {{if eq .nav_link "products_new"}}active{{end}}" href="/management/new">Agregar</a>
-        </li>
-      </ul>
-    </li>
-    
-    <li class="nav-item">
-      <a class="nav-link {{if eq .nav_link "config"}}active{{end}}" href="/management/config">
-        <i class="fa fa-cog me-2"></i> Configuración
+      <a class="nav-link {{if eq .nav_link "users"}}active{{end}}" href="/logs">
+        <i class="fa fa-history me-2"></i> Ver Logs
       </a>
     </li>
-  </ul>
 </div>
