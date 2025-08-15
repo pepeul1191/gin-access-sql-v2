@@ -43,4 +43,4 @@ coverage.out
 .env
 node_modules
 scripts/_*.sql
-public/fonts
+static/fonts

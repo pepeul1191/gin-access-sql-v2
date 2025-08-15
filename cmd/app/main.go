@@ -1,33 +1,38 @@
-// cmd/app/main.go
 package main
 
 import (
 	"accessv2/config"
-
 	"log"
 
-	"github.com/gin-contrib/sessions/cookie" // Importar el store de cookies
+	"github.com/gin-contrib/sessions/cookie"
 )
 
 func main() {
-	// Inicializar base de datos
-	err := config.InitDB()
-	if err != nil {
-		log.Fatalf("Error al inicializar la base de datos: %v", err)
+	// 1. Configuración inicial
+	if err := config.LoadEnv(); err != nil {
+		log.Fatalf("Error loading environment: %v", err)
 	}
 
-	// Configuración del session store usando gin-contrib/sessions
-	store := cookie.NewStore([]byte("clave-secreta-de-32-bytes"))
-	// Configuración de rutas
-	router := config.SetupRouter(store)
+	// 2. Inicialización de la base de datos
+	db, err := config.InitDB()
+	if err != nil {
+		log.Fatalf("Database initialization failed: %v", err)
+	}
 
-	// Configuración de vistas y archivos estáticos
+	// 4. Configuración de sesiones
+	store := cookie.NewStore([]byte(config.GetEnv("SESSION_SECRET", "default-secret-32-bytes-long!")))
+
+	// 5. Configuración del router
+	router := config.SetupRouter(db, store)
+
+	// 6. Configuración de vistas y estáticos
 	router.LoadHTMLGlob("templates/**/*")
-	router.Static("/public", "./public")
+	router.Static("/static", "./static") // Mejor nombre que 'public'
 
-	// Inicia servidor
-	log.Println("Servidor iniciado en :8080")
-	if err := router.Run(":8080"); err != nil {
-		log.Fatalf("Error al iniciar el servidor: %v", err)
+	// 7. Inicio del servidor
+	serverPort := config.GetEnv("SERVER_PORT", ":8080")
+	log.Printf("Server starting on %s", serverPort)
+	if err := router.Run(serverPort); err != nil {
+		log.Fatalf("Server failed: %v", err)
 	}
 }

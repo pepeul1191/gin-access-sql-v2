@@ -1,0 +1,40 @@
+{{template "application.html" .}}
+
+{{define "extra_header"}}
+{{end}}
+
+{{define "extra_footer"}}
+{{end}}
+
+{{define "content"}}
+  <h1 class="mb-4">Listado de Sistemas</h1>
+        
+  <table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Repositorio</th>
+            <th>Creado</th>
+            <th>Actualizado</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{range .systems}}
+        <tr>
+            <td>{{.ID}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.Description}}</td>
+            <td>
+                {{if .Repository}}
+                    <a href="{{.Repository}}" target="_blank">Ver</a>
+                {{end}}
+            </td>
+            <td>{{.Created.Format "2006-01-02 15:04"}}</td>
+            <td>{{.Updated.Format "2006-01-02 15:04"}}</td>
+        </tr>
+        {{end}}
+    </tbody>
+  </table>
+{{end}}

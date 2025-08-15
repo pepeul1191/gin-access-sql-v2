@@ -37,7 +37,7 @@
         {{end}}
   
         <form method="post" action="/sign-in">
-          
+          <input type="hidden" name="_csrf" value="{{.csrfToken}}">
           
           <div class="mb-3">
             <label for="id_username" class="form-label">Usuario</label>

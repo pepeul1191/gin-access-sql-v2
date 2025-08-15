@@ -3,46 +3,68 @@ package config
 import (
 	"log"
 	"os"
+	"time"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
 
-func InitDB() error {
-	// Cargar variables de entorno
-	if err := godotenv.Load(); err != nil {
-		log.Fatal("Error cargando el archivo .env")
-	}
-
+// InitDB inicializa la conexión a la base de datos
+func InitDB() (*gorm.DB, error) {
 	var err error
-	dbDriver := os.Getenv("DB_DRIVER")
-	dbName := os.Getenv("DB_NAME")
+
+	newLogger := logger.New(
+		log.New(os.Stdout, "\r\n", log.LstdFlags),
+		logger.Config{
+			SlowThreshold: time.Second,
+			LogLevel:      logger.Info,
+			Colorful:      true,
+		},
+	)
+
+	dbDriver := GetEnv("DB_DRIVER", "sqlite")
+	dbName := GetEnv("DB_NAME", "database.db")
 
 	switch dbDriver {
 	case "sqlite":
-		DB, err = gorm.Open(sqlite.Open(dbName), &gorm.Config{})
+		db, err = gorm.Open(sqlite.Open(dbName), &gorm.Config{
+			Logger: newLogger,
+		})
 	// case "postgres":
-	// 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
-	// 		os.Getenv("DB_HOST"),
-	// 		os.Getenv("DB_PORT"),
-	// 		os.Getenv("DB_USER"),
-	// 		os.Getenv("DB_PASSWORD"),
-	// 		dbName,
-	// 		os.Getenv("DB_SSL_MODE"))
-	// 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	// 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
+	// 		GetEnv("DB_HOST", "localhost"),
+	// 		GetEnv("DB_PORT", "5432"),
+	// 		GetEnv("DB_USER", "postgres"),
+	// 		GetEnv("DB_PASSWORD", ""),
+	// 		dbName)
+	// 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	// 		Logger: newLogger,
+	// 	})
 	default:
-		log.Fatal("Driver de BD no soportado")
+		log.Fatal("Database driver not supported")
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, err
+	}
+
+	// Configuración del pool de conexiones
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetConnMaxLifetime(time.Hour)
+
+	return db, nil
 }
 
+// GetDB devuelve la instancia de la base de datos
 func GetDB() *gorm.DB {
-	return DB
+	return db
 }
