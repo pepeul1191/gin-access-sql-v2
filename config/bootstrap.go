@@ -8,6 +8,7 @@ import (
 	"accessv2/internal/repositories"
 	"accessv2/internal/services"
 	"accessv2/pkg/middleware"
+	"html/template"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -33,6 +34,11 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 		middleware.SessionMiddleware(),        // 3. Middleware de sesión personalizado
 		middleware.CSRFMiddleware(),           // 4. CSRF (depende de las sesiones)
 	)
+
+	router.SetFuncMap(template.FuncMap{
+		"add": func(a, b int) int { return a + b },
+		"sub": func(a, b int) int { return a - b },
+	})
 
 	// Inicialización de repositorios
 	systemRepo := repositories.NewSystemRepository(db)

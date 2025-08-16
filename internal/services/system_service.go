@@ -16,3 +16,16 @@ func NewSystemService(repo *repositories.SystemRepository) *SystemService {
 func (s *SystemService) GetAllSystems() ([]domain.System, error) {
 	return s.repo.GetAll()
 }
+
+func (s *SystemService) GetPaginatedSystems(page, perPage int, nameQuery, descQuery string) ([]domain.System, int64, error) {
+	// Validación básica
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 {
+		perPage = 10
+	}
+
+	// Delegar al repositorio
+	return s.repo.GetPaginated(page, perPage, nameQuery, descQuery)
+}

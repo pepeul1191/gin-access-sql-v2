@@ -22,3 +22,29 @@ func (r *SystemRepository) GetAll() ([]domain.System, error) {
 	}
 	return systems, nil
 }
+
+func (r *SystemRepository) GetPaginated(page, perPage int, nameQuery, descQuery string) ([]domain.System, int64, error) {
+	var systems []domain.System
+	var total int64
+
+	query := r.db.Model(&domain.System{})
+
+	if nameQuery != "" {
+		query = query.Where("name LIKE ?", "%"+nameQuery+"%")
+	}
+
+	if descQuery != "" {
+		query = query.Where("description LIKE ?", "%"+descQuery+"%")
+	}
+
+	// Contar el total
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Aplicar paginación
+	offset := (page - 1) * perPage
+	err := query.Offset(offset).Limit(perPage).Find(&systems).Error
+
+	return systems, total, err
+}

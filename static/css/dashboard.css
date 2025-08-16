@@ -11,6 +11,10 @@ body.dashboard-layout {
   transition: all 0.3s;
 }
 
+.main-content .py-4{
+  padding-bottom: 0rem !important; 
+}
+
 .sidebar.collapsed {
   transform: translateX(-250px);
 }
@@ -19,6 +23,10 @@ body.dashboard-layout {
   margin-left: 250px;
   padding: 20px;
   transition: all 0.3s;
+}
+
+.content-wrapper .py-4{
+  padding-top: 0rem !important;
 }
 
 .sidebar.collapsed ~ .content-wrapper {
