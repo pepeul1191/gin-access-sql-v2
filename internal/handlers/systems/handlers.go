@@ -1,8 +1,10 @@
 package systems
 
 import (
+	"accessv2/internal/forms"
 	"accessv2/internal/services"
 	"accessv2/pkg/middleware"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -73,5 +75,60 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 		"globals":          globals,
 		"session":          sessionData.(middleware.SessionData),
 		"navLink":          "systems",
+	})
+}
+
+func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
+	// Obtener token CSRF una sola vez
+	csrfToken := c.MustGet("csrf_token").(string)
+	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+	fmt.Println("1 ++++++++++++++++++++")
+
+	// Manejar método POST
+	if c.Request.Method == http.MethodPost {
+		var input forms.SystemCreateInput
+
+		// Parsear formulario
+		if err := c.ShouldBind(&input); err != nil {
+			c.HTML(http.StatusBadRequest, "systems_create.html", gin.H{
+				"title":   "Error al crear sistema",
+				"error":   "Datos inválidos",
+				"csrf":    csrfToken,
+				"values":  c.Request.PostForm,
+				"globals": globals,
+				"session": sessionData.(middleware.SessionData),
+				"navLink": "systems",
+			})
+			return
+		}
+
+		// Crear sistema a través del servicio
+		system, err := h.service.CreateSystem(&input)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "systems_create.html", gin.H{
+				"title":   "Error al crear sistema",
+				"error":   err.Error(),
+				"csrf":    csrfToken,
+				"values":  c.Request.PostForm,
+				"globals": globals,
+				"session": sessionData.(middleware.SessionData),
+				"navLink": "systems",
+			})
+			return
+		}
+
+		// Redirigir al listado con mensaje de éxito
+		c.Redirect(http.StatusFound, "/systems?success=Sistema creado exitosamente: "+system.Name)
+		return
+	}
+	fmt.Println("2 ++++++++++++++++++++")
+	// Manejar método GET (muestra el formulario)
+	c.HTML(http.StatusOK, "systems_create.html", gin.H{
+		"title":   "Crear Nuevo Sistema",
+		"globals": globals,
+		"session": sessionData.(middleware.SessionData),
+		"navLink": "systems",
+		"csrf":    csrfToken,
 	})
 }

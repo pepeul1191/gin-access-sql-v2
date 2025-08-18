@@ -48,3 +48,7 @@ func (r *SystemRepository) GetPaginated(page, perPage int, nameQuery, descQuery 
 
 	return systems, total, err
 }
+
+func (r *SystemRepository) Create(system *domain.System) error {
+	return r.db.Create(system).Error
+}
