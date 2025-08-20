@@ -57,7 +57,7 @@ Instalar dependencias de go:
 ### Archivo .env
 
     #### DBMATE
-    DB=db/app.db
+    DB=sqlite:db/app.db
     #### GORM
     DB_DRIVER=sqlite
     DB_NAME=db/app.db
@@ -67,7 +67,13 @@ Instalar dependencias de go:
     # DB_USER=user
     # DB_PASSWORD=pass
     # DB_SSL_MODE=disable
+    #### APP
+    BASE_URL=http://localhost:8080
+    STATIC_URL=http://localhost:8080/static
     #### SEGURIDAD
+    APP_NAME=PipsAuthz
+    ADMIN_USERNAME=admin
+    ADMIN_PASSWORD=123
     JWT_SECRET=mi_secreto_jwt_fuerte
     AUTH_HEADER=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
     PORT=5000

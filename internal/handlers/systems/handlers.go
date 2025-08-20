@@ -61,7 +61,7 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 	sessionData, _ := c.Get("sessionData")
 
 	// Renderizar vista
-	c.HTML(http.StatusOK, "systems_list.html", gin.H{
+	c.HTML(http.StatusOK, "systems/list", gin.H{
 		"title":            "Listado de Sistemas",
 		"systems":          systems,
 		"page":             page,
@@ -91,7 +91,7 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 
 		// Parsear formulario
 		if err := c.ShouldBind(&input); err != nil {
-			c.HTML(http.StatusBadRequest, "systems_create.html", gin.H{
+			c.HTML(http.StatusBadRequest, "systems/create", gin.H{
 				"title":   "Error al crear sistema",
 				"error":   "Datos inválidos",
 				"csrf":    csrfToken,
@@ -106,7 +106,7 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 		// Crear sistema a través del servicio
 		system, err := h.service.CreateSystem(&input)
 		if err != nil {
-			c.HTML(http.StatusBadRequest, "systems_create.html", gin.H{
+			c.HTML(http.StatusBadRequest, "systems/create", gin.H{
 				"title":   "Error al crear sistema",
 				"error":   err.Error(),
 				"csrf":    csrfToken,
@@ -124,7 +124,7 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 	}
 	fmt.Println("2 ++++++++++++++++++++")
 	// Manejar método GET (muestra el formulario)
-	c.HTML(http.StatusOK, "systems_create.html", gin.H{
+	c.HTML(http.StatusOK, "systems/create", gin.H{
 		"title":   "Crear Nuevo Sistema",
 		"globals": globals,
 		"session": sessionData.(middleware.SessionData),
