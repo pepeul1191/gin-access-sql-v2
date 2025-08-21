@@ -1,93 +1,82 @@
-{{define "systems/create"}}
-{{template "application.html" .}}
-
 {{define "extra_header"}}
+<!-- CSS específico para crear -->
+<style>
+.card { max-width: 800px; margin: 0 auto; }
+</style>
 {{end}}
 
-
-  {{ block "content" . }}
-    <div class="container-fluid py-4">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="mb-0">
-            <i class="fa fa-plus-circle me-2"></i>Crear Nuevo Sistema
-          </h4>
-        </div>
-        <div class="card-body">
-          <form method="POST" action="/systems">
-            {{/* CSRF Token */}}
-            <input type="hidden" name="_csrf" value="{{.csrf}}">
-            
-            {{/* Primera fila */}}
-            <div class="row mb-3">
-              {{/* Nombre - col-md-2 */}}
-              <div class="col-md-2">
-                <label for="name" class="form-label">Nombre*</label>
-                <input type="text" class="form-control" id="name" name="name" required>
-              </div>
-              
-              {{/* Repositorio - col-md-4 */}}
-              <div class="col-md-4">
-                <label for="repository" class="form-label">Repositorio</label>
-                <input type="url" class="form-control" id="repository" name="repository" placeholder="https://">
-              </div>
-              
-              {{/* Descripción - col-md-6 */}}
-              <div class="col-md-6">
-                <label for="description" class="form-label">Descripción</label>
-                <textarea class="form-control" id="description" name="description" rows="1"></textarea>
-              </div>
+{{define "content"}}
+<div class="content-wrapper">
+  <div class="container-fluid py-4">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="mb-0">
+          <i class="fa fa-plus-circle me-2"></i>Crear Nuevo Sistema
+        </h4>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/systems">
+          <input type="hidden" name="_csrf" value="{{.csrf}}">
+          
+          <div class="row mb-3">
+            <div class="col-md-2">
+              <label for="name" class="form-label">Nombre*</label>
+              <input type="text" class="form-control" id="name" name="name" required>
             </div>
             
-            {{/* Segunda fila */}}
-            <div class="row mb-3">
-              {{/* Created - col-md-2 */}}
-              <div class="col-md-2">
-                <label for="created" class="form-label">Creado</label>
-                <input type="date" class="form-control" id="created" name="created">
-              </div>
-              
-              {{/* Updated - col-md-2 */}}
-              <div class="col-md-2">
-                <label for="updated" class="form-label">Actualizado</label>
-                <input type="date" class="form-control" id="updated" name="updated">
-              </div>
-              
-              {{/* Espacio vacío para empujar los botones a la derecha */}}
-              <div class="col-md-6"></div>
-              
-              {{/* Botones - alineados a la derecha */}}
-              <div class="col-md-2 text-end">
-                <a href="/systems" class="btn btn-secondary me-2">
-                  <i class="fa fa-arrow-left"></i> Cancelar
-                </a>
-                <button type="submit" class="btn btn-primary">
-                  <i class="fa fa-save"></i> Guardar
-                </button>
-              </div>
+            <div class="col-md-4">
+              <label for="repository" class="form-label">Repositorio</label>
+              <input type="url" class="form-control" id="repository" name="repository" placeholder="https://">
             </div>
-          </form>
-        </div>
+            
+            <div class="col-md-6">
+              <label for="description" class="form-label">Descripción</label>
+              <textarea class="form-control" id="description" name="description" rows="1"></textarea>
+            </div>
+          </div>
+          
+          <div class="row mb-3">
+            <div class="col-md-2">
+              <label for="created" class="form-label">Creado</label>
+              <input type="date" class="form-control" id="created" name="created">
+            </div>
+            
+            <div class="col-md-2">
+              <label for="updated" class="form-label">Actualizado</label>
+              <input type="date" class="form-control" id="updated" name="updated">
+            </div>
+            
+            <div class="col-md-6"></div>
+            
+            <div class="col-md-2 text-end">
+              <a href="/systems" class="btn btn-secondary me-2">
+                <i class="fa fa-arrow-left"></i> Cancelar
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fa fa-save"></i> Guardar
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
     </div>
-  {{end}}
+  </div>
+</div>
+{{end}}
 
 {{define "extra_footer"}}
+<!-- JS específico para crear -->
 <script>
-// Script para establecer fechas por defecto
 document.addEventListener('DOMContentLoaded', function() {
   const today = new Date().toISOString().split('T')[0];
-  
-  // Establecer fecha actual si los campos están vacíos
   const createdField = document.getElementById('created');
-  if (createdField && !createdField.value) {
-    createdField.value = today;
-  }
+  if (createdField && !createdField.value) createdField.value = today;
   
   const updatedField = document.getElementById('updated');
-  if (updatedField && !updatedField.value) {
-    updatedField.value = today;
-  }
+  if (updatedField && !updatedField.value) updatedField.value = today;
 });
 </script>
 {{end}}
+
+<!-- HEREDA DEL LAYOUT PRINCIPAL -->
+{{template "application.html" .}}

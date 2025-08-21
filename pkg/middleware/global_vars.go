@@ -1,4 +1,3 @@
-// pkg/middleware/global_vars
 package middleware
 
 import (
@@ -35,9 +34,9 @@ func GlobalVarsMiddleware() gin.HandlerFunc {
 			StaticURL:   os.Getenv("STATIC_URL"),
 			CurrentYear: time.Now().Year(),
 		}
-
+		// Colocar los bloques HTML en el contexto
 		c.Set("globals", globals)
-
+		// Continuar con la siguiente función del middleware o controlador
 		c.Next()
 	}
 }

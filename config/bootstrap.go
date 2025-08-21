@@ -8,6 +8,7 @@ import (
 	"accessv2/internal/repositories"
 	"accessv2/internal/services"
 	"accessv2/pkg/middleware"
+	"accessv2/pkg/utils"
 	"html/template"
 	"net/http"
 
@@ -35,9 +36,13 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 		middleware.CSRFMiddleware(),           // 4. CSRF (depende de las sesiones)
 	)
 
+	// Cargar helpers a vistas
 	router.SetFuncMap(template.FuncMap{
-		"add": func(a, b int) int { return a + b },
-		"sub": func(a, b int) int { return a - b },
+		"safeHTML": func(s string) template.HTML { return template.HTML(s) },
+		"add":      utils.Add,
+		"sub":      utils.Sub,
+		"scripts":  utils.GenerateScriptsHTML,
+		"styles":   utils.GenerateStylesHTML,
 	})
 
 	// Inicialización de repositorios

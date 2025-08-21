@@ -1,13 +1,7 @@
-{{template "application.html" .}}
-
-{{define "extra_header"}}
-{{end}}
-
-{{define "extra_footer"}}
-{{end}}
-
 {{define "systems/list"}}
-  {{ block "content" . }}
+  {{template "dashboard_header.html" .}}
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="content-wrapper">
     <div class="container-fluid py-4">
       <h3 class="mb-4">
         <i class="fa fa-cogs me-2"></i>Gestión de Sistemas
@@ -23,18 +17,18 @@
         </div>
         <div class="card-body">
           <form method="GET" action="/systems">
-            <input type="hidden" name="per_page" value="{{ .perPage }}">
+            <input type="hidden" name="per_page" value="{{.perPage}}">
             <div class="row mb-3 align-items-end">
               <div class="col-md-4">
                 <label for="name" class="form-label">Buscar por nombre</label>
                 <div class="input-group">
-                  <input type="text" id="name" name="name" class="form-control" placeholder="Nombre..." value="{{ .nameQuery }}">
+                  <input type="text" id="name" name="name" class="form-control" placeholder="Nombre..." value="{{.nameQuery}}">
                 </div>
               </div>
               <div class="col-md-5">
                 <label for="description" class="form-label">Buscar por Descripción</label>
                 <div class="input-group">
-                  <input type="text" id="description" name="description" class="form-control" placeholder="Descripción..." value="{{ .descriptionQuery }}">
+                  <input type="text" id="description" name="description" class="form-control" placeholder="Descripción..." value="{{.descriptionQuery}}">
                 </div>
               </div>
               <div class="col-md-3">
@@ -68,14 +62,14 @@
             <div class="d-flex align-items-center me-3">
               <label for="rows-per-page" class="form-label mb-0 me-2">Filas por página:</label>
               <form method="GET" id="per_page_form">
-                <input type="hidden" name="name" value="{{ .nameQuery }}">
-                <input type="hidden" name="description" value="{{ .descriptionQuery }}">
+                <input type="hidden" name="name" value="{{.nameQuery}}">
+                <input type="hidden" name="description" value="{{.descriptionQuery}}">
                 <select name="per_page" class="form-select" style="width: 120px;" onchange="this.form.submit()">
-                  <option value="5" {{ if eq .perPage 5 }}selected{{ end }}>5</option>
-                  <option value="10" {{ if eq .perPage 10 }}selected{{ end }}>10</option>
-                  <option value="25" {{ if eq .perPage 25 }}selected{{ end }}>25</option>
-                  <option value="50" {{ if eq .perPage 50 }}selected{{ end }}>50</option>
-                  <option value="100" {{ if eq .perPage 100 }}selected{{ end }}>100</option>
+                  <option value="5" {{if eq .perPage 5}}selected{{end}}>5</option>
+                  <option value="10" {{if eq .perPage 10}}selected{{end}}>10</option>
+                  <option value="25" {{if eq .perPage 25}}selected{{end}}>25</option>
+                  <option value="50" {{if eq .perPage 50}}selected{{end}}>50</option>
+                  <option value="100" {{if eq .perPage 100}}selected{{end}}>100</option>
                 </select>
               </form>
             </div>
@@ -94,75 +88,37 @@
                 </tr>
               </thead>
               <tbody>
-                {{ range .systems }}
+                {{range .systems}}
                 <tr>
-                  <td>{{ .Name }}</td>
-                  <td>{{ .Description }}</td>
+                  <td>{{.Name}}</td>
+                  <td>{{.Description}}</td>
                   <td>
-                    {{ if .Repository }}
-                      <a href="{{ .Repository }}" target="_blank">Ver</a>
-                    {{ end }}
+                    {{if .Repository}}
+                      <a href="{{.Repository}}" target="_blank">Ver</a>
+                    {{end}}
                   </td>
-                  <td>{{ .Created.Format "2006-01-02" }}</td>
-                  <td>{{ .Updated.Format "2006-01-02" }}</td>
+                  <td>{{.Created.Format "2006-01-02"}}</td>
+                  <td>{{.Updated.Format "2006-01-02"}}</td>
                   <td class="text-end btn-group-sm">
-                    <a href="/systems/{{ .ID }}/edit" class="btn btn-outline-secondary me-1">
+                    <a href="/systems/{{.ID}}/edit" class="btn btn-outline-secondary me-1">
                       <i class="fa fa-edit"></i> Editar
                     </a>
-                    <a href="/systems/{{ .ID }}/delete" class="btn btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este sistema?');">
+                    <a href="/systems/{{.ID}}/delete" class="btn btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este sistema?');">
                       <i class="fa fa-trash"></i> Eliminar
                     </a>
                   </td>
                 </tr>
-                {{ else }}
+                {{else}}
                 <tr>
                   <td colspan="6" class="text-center">No se encontraron sistemas.</td>
                 </tr>
-                {{ end }}
+                {{end}}
               </tbody>
-              <tfoot>
-                <tr>
-                  <td colspan="6">
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                      <div class="text-left">
-                        Página {{ .page }} de {{ .totalPages }} - Mostrando registros {{ .startRecord }} - {{ .endRecord }} de un total de {{ .totalSystems }}
-                      </div>
-
-                      <nav aria-label="Page navigation">
-                        <ul class="pagination mb-0">
-                          <li class="page-item {{ if eq .page 1 }}disabled{{ end }}">
-                            <a class="page-link" href="?page=1&per_page={{ .perPage }}&name={{ .nameQuery }}&description={{ .descriptionQuery }}" aria-label="First">
-                              <i class="fa fa-angle-double-left"></i> Primero
-                            </a>
-                          </li>
-
-                          <li class="page-item {{ if eq .page 1 }}disabled{{ end }}">
-                            <a class="page-link" href="?page={{ sub .page 1 }}&per_page={{ .perPage }}&name={{ .nameQuery }}&description={{ .descriptionQuery }}" aria-label="Previous">
-                              <i class="fa fa-angle-left"></i> Anterior
-                            </a>
-                          </li>
-
-                          <li class="page-item {{ if eq .page .totalPages }}disabled{{ end }}">
-                            <a class="page-link" href="?page={{ add .page 1 }}&per_page={{ .perPage }}&name={{ .nameQuery }}&description={{ .descriptionQuery }}" aria-label="Next">
-                              Siguiente <i class="fa fa-angle-right"></i>
-                            </a>
-                          </li>
-
-                          <li class="page-item {{ if eq .page .totalPages }}disabled{{ end }}">
-                            <a class="page-link" href="?page={{ .totalPages }}&per_page={{ .perPage }}&name={{ .nameQuery }}&description={{ .descriptionQuery }}" aria-label="Last">
-                              Último <i class="fa fa-angle-double-right"></i>
-                            </a>
-                          </li>
-                        </ul>
-                      </nav>
-                    </div>
-                  </td>
-                </tr>
-              </tfoot>
             </table>
           </div>
         </div>
       </div>
     </div>
-  {{end}}
+  </div>
+  {{template "dashboard_footer.html" .}}
 {{end}}

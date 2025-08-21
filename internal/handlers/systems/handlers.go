@@ -4,7 +4,6 @@ import (
 	"accessv2/internal/forms"
 	"accessv2/internal/services"
 	"accessv2/pkg/middleware"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -59,6 +58,10 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
+	styles := []string{}
+	scripts := []string{"dist/app.min", "dist/vendor"}
+	c.Set("css", styles)
+	c.Set("js", scripts)
 
 	// Renderizar vista
 	c.HTML(http.StatusOK, "systems/list", gin.H{
@@ -75,6 +78,8 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 		"globals":          globals,
 		"session":          sessionData.(middleware.SessionData),
 		"navLink":          "systems",
+		"styles":           styles,  // Pasar array de estilos
+		"scripts":          scripts, // Pasar array de scripts
 	})
 }
 
@@ -83,7 +88,6 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 	csrfToken := c.MustGet("csrf_token").(string)
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
-	fmt.Println("1 ++++++++++++++++++++")
 
 	// Manejar método POST
 	if c.Request.Method == http.MethodPost {
@@ -122,7 +126,6 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 		c.Redirect(http.StatusFound, "/systems?success=Sistema creado exitosamente: "+system.Name)
 		return
 	}
-	fmt.Println("2 ++++++++++++++++++++")
 	// Manejar método GET (muestra el formulario)
 	c.HTML(http.StatusOK, "systems/create", gin.H{
 		"title":   "Crear Nuevo Sistema",

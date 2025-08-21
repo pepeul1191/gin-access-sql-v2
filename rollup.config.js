@@ -15,7 +15,7 @@ const Vendor = {
     sourcemap: true,
     format: 'iife',
     name: 'vendor',
-    file: production ? 'public/dist/vendor.min.js' : 'public/dist/vendor.js',
+    file: production ? 'static/dist/vendor.min.js' : 'static/dist/vendor.js',
     globals: {
       'axios': 'axios',
       'bootstrap': 'bootstrap'
@@ -48,11 +48,11 @@ const Vendor = {
       targets: [
         {
           src: 'node_modules/font-awesome/fonts/*',
-          dest: 'public/fonts/'
+          dest: 'static/fonts/'
         },
         {
           src: 'node_modules/simplemde/dist/*',
-          dest: 'public/dist/'
+          dest: 'static/dist/'
         }
       ]
     })
@@ -65,7 +65,7 @@ const Vendor = {
 const App = {
   input: 'src/entries/app.js', // Tu archivo de entrada principal
   output: {
-    file: 'public/dist/app.min.js',
+    file: 'static/dist/app.min.js',
     format: 'iife',
     sourcemap: !production
   },
@@ -93,7 +93,7 @@ const App = {
     // Copia archivos estáticos (opcional)
     copy({
       targets: [
-        { src: 'src/assets/*', dest: 'public/dist/assets' }
+        { src: 'src/assets/*', dest: 'static/dist/assets' }
       ]
     })
   ]
