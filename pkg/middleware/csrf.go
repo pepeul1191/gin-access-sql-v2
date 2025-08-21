@@ -108,11 +108,13 @@ func CSRFMiddleware() gin.HandlerFunc {
 					"message": "Debe incluir el token CSRF en headers o formulario",
 				})
 			} else {
-				c.HTML(http.StatusForbidden, "403.html", gin.H{
+				c.HTML(http.StatusForbidden, "403", gin.H{
 					"title":    "Error de seguridad",
 					"message":  "El formulario no contenía el token de seguridad requerido",
 					"code":     403,
 					"globals":  globals,
+					"styles":   []string{"css/common"},
+					"scripts":  []string{"js/403"},
 					"solution": "Recargue la página e intente nuevamente",
 				})
 			}

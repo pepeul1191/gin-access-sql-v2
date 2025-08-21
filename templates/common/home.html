@@ -1,15 +1,7 @@
-{{template "application.html" .}}
-
-{{define "extra_header"}}
-{{end}}
-
-{{define "extra_footer"}}
-{{end}}
-
-{{define "content"}}
-    {{template "header.html" .}}
+{{define "home"}}
+  {{template "dashboard_header.html" .}}
     <main>Contenido...</main>
     ga('create', '{{.globals.AppName}}', 'auto');
     ga('entorno', '{{.globals.Env}}', 'auto');
-    {{template "footer.html" .}}
+  {{template "dashboard_footer.html" .}}
 {{end}}

@@ -60,8 +60,6 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 	sessionData, _ := c.Get("sessionData")
 	styles := []string{}
 	scripts := []string{"dist/app.min", "dist/vendor"}
-	c.Set("css", styles)
-	c.Set("js", scripts)
 
 	// Renderizar vista
 	c.HTML(http.StatusOK, "systems/list", gin.H{

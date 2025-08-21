@@ -1,0 +1,11 @@
+  <script>
+    const URLS = {
+      BASE: "{{.globals.BaseURL | js}}",
+      STATIC: "{{.globals.StaticURL | js}}",
+    }
+  </script>
+  {{ if .scripts }}
+    {{ scripts .globals.StaticURL .scripts }}
+  {{ end }}
+</body>
+</html>

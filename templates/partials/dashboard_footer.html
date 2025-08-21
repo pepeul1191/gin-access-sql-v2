@@ -7,6 +7,9 @@
       STATIC: "{{.globals.StaticURL | js}}",
     }
   </script>
+  <script src="{{.globals.StaticURL}}/dist/simplemde.min.js"></script>
+  <script src="{{.globals.StaticURL}}/dist/vendor.js"></script>
+  <script src="{{.globals.StaticURL}}/dist/app.min.js"></script>
   {{ if .scripts }}
     {{ scripts .globals.StaticURL .scripts }}
   {{ end }}

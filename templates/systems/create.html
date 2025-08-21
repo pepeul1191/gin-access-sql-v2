@@ -1,12 +1,6 @@
-{{define "extra_header"}}
-<!-- CSS específico para crear -->
-<style>
-.card { max-width: 800px; margin: 0 auto; }
-</style>
-{{end}}
-
-{{define "content"}}
-<div class="content-wrapper">
+{{define "systems/create"}}
+  {{template "dashboard_header.html" .}}
+  
   <div class="container-fluid py-4">
     <div class="card">
       <div class="card-header">
@@ -61,22 +55,6 @@
       </div>
     </div>
   </div>
-</div>
-{{end}}
 
-{{define "extra_footer"}}
-<!-- JS específico para crear -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  const today = new Date().toISOString().split('T')[0];
-  const createdField = document.getElementById('created');
-  if (createdField && !createdField.value) createdField.value = today;
-  
-  const updatedField = document.getElementById('updated');
-  if (updatedField && !updatedField.value) updatedField.value = today;
-});
-</script>
+  {{template "dashboard_footer.html" .}}
 {{end}}
-
-<!-- HEREDA DEL LAYOUT PRINCIPAL -->
-{{template "application.html" .}}

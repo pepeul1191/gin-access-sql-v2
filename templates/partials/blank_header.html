@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="{{.globals.StaticURL}}/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/vendor.min.css">
+  <title>{{.title}}</title>
+  <!-- stylesheets -->
+  {{ if .styles }}
+    {{ styles .globals.StaticURL .styles }}
+  {{ end }}
+</head>
+<body>

@@ -33,7 +33,8 @@ func AuthRequired() gin.HandlerFunc {
 func handleUnauthorized(c *gin.Context) {
 	if isHTMLRequest(c) {
 		globals, _ := c.Get("globals")
-		c.HTML(http.StatusUnauthorized, "401.html", gin.H{
+		c.HTML(http.StatusUnauthorized, "401", gin.H{
+			"styles":  []string{"css/common"},
 			"title":   "Acceso no autorizado",
 			"globals": globals,
 		})

@@ -32,11 +32,13 @@ func (h *AuthHandler) SignIn(c *gin.Context) {
 
 		csrfToken, _ := c.Get("csrf_token")
 
-		c.HTML(http.StatusOK, "sign-in.html", gin.H{
+		c.HTML(http.StatusOK, "sign-in", gin.H{
 			"title":       "Iniciar Sesión",
 			"globals":     globals,
 			"csrfToken":   csrfToken,
 			"flash_error": utils.FirstFlashOrEmpty(flashes),
+			"styles":      []string{"css/auth"},
+			"scripts":     []string{},
 		})
 		return
 	}
@@ -75,8 +77,9 @@ func (h *AuthHandler) SignOut(c *gin.Context) {
 	session.Save()                                // Guardar cambios
 
 	// 2. Mostrar template de confirmación
-	c.HTML(http.StatusOK, "sign-out.html", gin.H{
+	c.HTML(http.StatusOK, "sign-out", gin.H{
 		"title":   "Sesión cerrada",
+		"styles":  []string{"css/common"},
 		"globals": c.MustGet("globals"),
 	})
 }

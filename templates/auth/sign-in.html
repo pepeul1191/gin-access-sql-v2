@@ -1,27 +1,5 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{.title}}</title>
-  <link rel="icon" href="{{.globals.StaticURL}}/favicon.ico" type="image/x-icon">
-  
-  <link rel="stylesheet" href="{{.globals.StaticURL}}/dist/vendor.min.css">
-  <style>
-    .auth-wrapper {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #f8f9fa;
-    }
-    .auth-card {
-      width: 100%;
-      max-width: 400px;
-    }
-  </style>
-</head>
-<body>
+{{define "sign-in"}}
+  {{template "blank_header.html" .}}
   <div class="auth-wrapper">
     <div class="auth-card card shadow-sm">
       <div class="card-body p-4">
@@ -71,8 +49,5 @@
     </div>
   </div>
   
-  <script src="{{.globals.StaticURL}}/dist/simplemde.min.js"></script>
-  <script src="{{.globals.StaticURL}}/dist/vendor.js"></script>
-  <script src="{{.globals.StaticURL}}/dist/app.min.js"></script>
-</body>
-</html>
+  {{template "blank_footer.html" .}}
+{{end}}

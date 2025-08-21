@@ -1,0 +1,16 @@
+.message-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  flex-direction: column;
+}
+
+.fw-bold{
+  color: var(--primary-color);
+}
+
+.fa{
+  margin-right: 10px;
+}

@@ -20,21 +20,22 @@ func (h *CommonHandler) Home(c *gin.Context) {
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 
-	c.HTML(http.StatusOK, "home.html", gin.H{
-		"title":    "Página Principal",
-		"globals":  globals,
-		"nav_link": "",
-		"session":  sessionData.(middleware.SessionData),
+	c.HTML(http.StatusOK, "home", gin.H{
+		"title":   "Página Principal",
+		"globals": globals,
+		"navLink": "",
+		"session": sessionData.(middleware.SessionData),
 	})
 }
 
 func (h *CommonHandler) NotFound(c *gin.Context) {
 	if c.Request.Method == "GET" {
 		globals, _ := c.Get("globals")
-		c.HTML(http.StatusNotFound, "404.html", gin.H{
+		c.HTML(http.StatusNotFound, "404", gin.H{
 			"title":   "Página no encontrada",
 			"path":    c.Request.URL.Path,
 			"globals": globals,
+			"styles":  []string{"css/common"},
 		})
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{
