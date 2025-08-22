@@ -295,5 +295,5 @@ func (h *SystemHandler) DeleteSystemHandler(c *gin.Context) {
 
 	// Éxito
 	message := "Sistema eliminado exitosamente"
-	c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=success", url.QueryEscape(message)))
 }

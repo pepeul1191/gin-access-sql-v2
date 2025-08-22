@@ -1,0 +1,173 @@
+{{define "users/list"}}
+  {{template "dashboard_header.html" .}}
+  <!-- CONTENIDO PRINCIPAL -->
+  <div class="container-fluid py-4">
+    <h3 class="mb-4">
+      <i class="fa fa-users me-2"></i>Gestión de Usuarios
+    </h3>
+
+    {{if .message.Type}}
+    <div class="alert alert-{{.message.Type}}">
+        {{.message.Content}}
+    </div>
+    {{end}}
+    <!-- Filtros de Búsqueda -->
+    <div class="card mb-4">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="fa fa-filter me-2"></i>
+          Filtros de Búsqueda
+        </h6>
+      </div>
+      <div class="card-body">
+        <form method="GET" action="/users">
+          <input type="hidden" name="per_page" value="{{.perPage}}">
+          <div class="row mb-3 align-items-end">
+            <div class="col-md-3">
+              <label for="name" class="form-label">Buscar por nombre de usuario</label>
+              <div class="input-group">
+                <input type="text" id="name" name="username" class="form-control" placeholder="Nombre..." value="{{.usernameQuery}}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <label for="email" class="form-label">Buscar por Correo</label>
+              <div class="input-group">
+                <input type="text" id="email" name="email" class="form-control" placeholder="Correo..." value="{{.emailQuery}}">
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="input-group">
+                <button type="submit" class="btn btn-primary">
+                  <i class="fa fa-search"></i> Buscar
+                </button>
+                <a href="/users" class="btn btn-secondary ms-2">
+                  <i class="fa fa-refresh"></i> Limpiar
+                </a>
+              </div>
+            </div>
+          </div>
+        </form>        
+      </div>
+    </div>
+
+    <!-- Listado de Usuarios -->
+    <div class="card mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">
+          <i class="fa fa-list me-2"></i>
+          Listado de Usuarios
+        </h6>
+        <a href="/users/create" class="btn btn-primary">
+          <i class="fa fa-plus"></i> Agregar Usuario
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="d-flex align-items-center me-3">
+            <label for="rows-per-page" class="form-label mb-0 me-2">Filas por página:</label>
+            <form method="GET" id="per_page_form">
+              <input type="hidden" name="username" value="{{.usernameQuery}}">
+              <input type="hidden" name="email" value="{{.emailQuery}}">
+              <select name="per_page" class="form-select" style="width: 120px;" onchange="this.form.submit()">
+                <option value="5" {{if eq .perPage 5}}selected{{end}}>5</option>
+                <option value="10" {{if eq .perPage 10}}selected{{end}}>10</option>
+                <option value="25" {{if eq .perPage 25}}selected{{end}}>25</option>
+                <option value="50" {{if eq .perPage 50}}selected{{end}}>50</option>
+                <option value="100" {{if eq .perPage 100}}selected{{end}}>100</option>
+              </select>
+            </form>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th>Nombre de Usuario</th>
+                <th>Email</th>
+                <th>Estado</th>
+                <th>Creado</th>
+                <th>Actualizado</th>
+                <th class="text-end">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {{range .users}}
+              <tr>
+                <td>{{.Username}}</td>
+                <td>{{.Email}}</td>
+                <td>
+                  {{if .Activated}}
+                    Activo
+                  {{else}}
+                    No Activo
+                  {{end}}
+                </td>
+                <td>{{.Created.Format "02/01/2006 - 03:04:05 PM"}}</td>
+                <td>{{.Updated.Format "02/01/2006 - 03:04:05 PM"}}</td>
+                <td class="text-end btn-group-sm">
+                  <a href="/users/{{.ID}}/edit" class="btn btn-outline-secondary me-1">
+                    <i class="fa fa-edit"></i> Editar
+                  </a>
+                  <a href="/users/{{.ID}}/delete" class="btn btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este sistema?');">
+                    <i class="fa fa-trash"></i> Eliminar
+                  </a>
+                </td>
+              </tr>
+              {{else}}
+              <tr>
+                <td colspan="6" class="text-center">No se encontraron usuarios.</td>
+              </tr>
+              {{end}}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="6">
+                  <div class="d-flex justify-content-between align-items-center mt-3">
+                      <div class="text-left">
+                        Página {{.page}} de {{.totalPages}} - Mostrando registros {{.startRecord}} - {{.endRecord}} de un total de {{.totalUsers}}
+                      </div>
+
+                    <nav aria-label="Page navigation">
+                      <ul class="pagination mb-0">
+                        <!-- Botón Primera Página -->
+                        <li class="page-item {{if eq .page 1}}disabled{{end}}">
+                          <a class="page-link" href="/users?page=1&per_page={{.perPage}}&username={{.usernameQuery}}&email={{.emailQuery}}" aria-label="First">
+                              <i class="fa fa-angle-double-left"></i> Primero
+                          </a>
+                        </li>
+
+                        <!-- Botón Página Anterior -->
+                        <li class="page-item {{if eq .page 1}}disabled{{end}}">
+                          <a class="page-link" href="/users?page={{sub .page 1}}&per_page={{.perPage}}&userusername={{.usernameQuery}}&email={{.emailQuery}}" aria-label="Previous">
+                              <i class="fa fa-angle-left"></i> Anterior
+                          </a>
+                        </li>
+
+                        <!-- Botón Página Siguiente -->
+                        <li class="page-item {{if eq .page .totalPages}}disabled{{end}}">
+                          <a class="page-link" href="/users?page={{add .page 1}}&per_page={{.perPage}}&username={{.usernameQuery}}&email={{.emailQuery}}" aria-label="Next">
+                              Siguiente <i class="fa fa-angle-right"></i>
+                          </a>
+                        </li>
+
+                        <!-- Botón Última Página -->
+                        <li class="page-item {{if eq .page .totalPages}}disabled{{end}}">
+                          <a class="page-link" href="/users?page={{.totalPages}}&per_page={{.perPage}}&username={{.usernameQuery}}&email={{.emailQuery}}" aria-label="Last">
+                              Último <i class="fa fa-angle-double-right"></i>
+                          </a>
+                        </li>
+                      </ul>
+                    </nav>
+                  </div>
+                </td>
+              </tr>
+          </tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  {{template "dashboard_footer.html" .}}
+{{end}}
