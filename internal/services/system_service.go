@@ -67,3 +67,35 @@ func (s *SystemService) CreateSystem(input *forms.SystemCreateInput) (*domain.Sy
 
 	return system, nil
 }
+
+// FetchSystem usando el repository (versión con pointer)
+func (s *SystemService) FetchSystem(id uint64, system *domain.System) error {
+	if system == nil {
+		return errors.New("system pointer cannot be nil")
+	}
+
+	// Usar el método del repository que acepta pointer
+	tempSystem, err := s.repo.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	// Copiar los valores al system proporcionado
+	*system = tempSystem
+	return nil
+}
+
+// UpdateSystem usando el repository
+func (s *SystemService) UpdateSystem(system *domain.System) error {
+	if system.ID == 0 {
+		return errors.New("ID de sistema inválido")
+	}
+
+	system.Updated = time.Now()
+	return s.repo.Update(system)
+}
+
+// DeleteSystem usando el repository
+func (s *SystemService) DeleteSystem(id uint64) error {
+	return s.repo.Delete(id)
+}

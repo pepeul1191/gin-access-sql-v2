@@ -11,6 +11,7 @@ import (
 	"accessv2/pkg/utils"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -39,10 +40,16 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	// Cargar helpers a vistas
 	router.SetFuncMap(template.FuncMap{
 		"safeHTML": func(s string) template.HTML { return template.HTML(s) },
-		"add":      utils.Add,
-		"sub":      utils.Sub,
-		"scripts":  utils.GenerateScriptsHTML,
-		"styles":   utils.GenerateStylesHTML,
+		"formatDate": func(t time.Time) string {
+			return t.Format("2006-01-02")
+		},
+		"formatDateTime": func(t time.Time) string {
+			return t.Format("02/01/2006 - 03:04:05 PM")
+		},
+		"add":     utils.Add,
+		"sub":     utils.Sub,
+		"scripts": utils.GenerateScriptsHTML,
+		"styles":  utils.GenerateStylesHTML,
 	})
 
 	// Inicialización de repositorios

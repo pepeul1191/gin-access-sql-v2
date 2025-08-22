@@ -1,14 +1,21 @@
 package systems
 
 import (
+	"accessv2/internal/domain"
 	"accessv2/internal/forms"
 	"accessv2/internal/services"
 	"accessv2/pkg/middleware"
+	"accessv2/pkg/utils"
+	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type SystemHandler struct {
@@ -59,7 +66,13 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 	styles := []string{}
-	scripts := []string{"dist/app.min", "dist/vendor"}
+	scripts := []string{}
+
+	// mensajes por URL, si lo hubiere
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
 
 	// Renderizar vista
 	c.HTML(http.StatusOK, "systems/list", gin.H{
@@ -78,27 +91,32 @@ func (h *SystemHandler) ListSystems(c *gin.Context) {
 		"navLink":          "systems",
 		"styles":           styles,  // Pasar array de estilos
 		"scripts":          scripts, // Pasar array de scripts
+		"message":          message,
 	})
 }
 
 func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 	// Obtener token CSRF una sola vez
-	csrfToken := c.MustGet("csrf_token").(string)
+	csrfToken, _ := c.Get("csrf_token")
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 
 	// Manejar método POST
 	if c.Request.Method == http.MethodPost {
 		var input forms.SystemCreateInput
-
 		// Parsear formulario
 		if err := c.ShouldBind(&input); err != nil {
+			message := utils.Message{
+				Content: err.Error(),
+				Type:    "danger",
+			}
 			c.HTML(http.StatusBadRequest, "systems/create", gin.H{
 				"title":   "Error al crear sistema",
-				"error":   "Datos inválidos",
+				"error":   err.Error(),
 				"csrf":    csrfToken,
 				"values":  c.Request.PostForm,
 				"globals": globals,
+				"message": message,
 				"session": sessionData.(middleware.SessionData),
 				"navLink": "systems",
 			})
@@ -108,28 +126,174 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 		// Crear sistema a través del servicio
 		system, err := h.service.CreateSystem(&input)
 		if err != nil {
+			message := utils.Message{
+				Content: err.Error(),
+				Type:    "danger",
+			}
 			c.HTML(http.StatusBadRequest, "systems/create", gin.H{
 				"title":   "Error al crear sistema",
 				"error":   err.Error(),
 				"csrf":    csrfToken,
 				"values":  c.Request.PostForm,
 				"globals": globals,
+				"message": message,
 				"session": sessionData.(middleware.SessionData),
 				"navLink": "systems",
 			})
 			return
 		}
 
-		// Redirigir al listado con mensaje de éxito
-		c.Redirect(http.StatusFound, "/systems?success=Sistema creado exitosamente: "+system.Name)
+		// Redirigir a editar sistema
+		message := "Sistema creado exitosamente"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=success", system.ID, message))
 		return
 	}
 	// Manejar método GET (muestra el formulario)
 	c.HTML(http.StatusOK, "systems/create", gin.H{
-		"title":   "Crear Nuevo Sistema",
-		"globals": globals,
-		"session": sessionData.(middleware.SessionData),
-		"navLink": "systems",
-		"csrf":    csrfToken,
+		"title":     "Crear Nuevo Sistema",
+		"globals":   globals,
+		"session":   sessionData.(middleware.SessionData),
+		"navLink":   "systems",
+		"csrfToken": csrfToken,
 	})
+}
+
+func (h *SystemHandler) EditSystemHandler(c *gin.Context) {
+	// Obtener parámetros
+	systemIdStr := c.Param("id")
+
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIdStr, 10, 32)
+	if err != nil {
+		message := "ID de sistema inválido"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Manejar método POST
+	if c.Request.Method == http.MethodPost {
+		h.handleEditSystemPost(c, systemID)
+		return
+	}
+
+	// Manejar método GET (muestra el formulario)
+	h.handleEditSystemGet(c, systemID)
+}
+
+func (h *SystemHandler) handleEditSystemPost(c *gin.Context, systemID uint64) {
+	// Obtener datos del formulario
+	form := forms.SystemEditInput{}
+
+	if err := c.ShouldBind(&form); err != nil {
+		message := "Datos del formulario inválidos"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
+		return
+	}
+
+	// Validaciones adicionales
+	if strings.TrimSpace(form.Name) == "" {
+		message := "El nombre del sistema es requerido"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
+		return
+	}
+
+	// Obtener el sistema actual
+	var system domain.System
+	if err := h.service.FetchSystem(systemID, &system); err != nil {
+		message := "Sistema no encontrado"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Actualizar datos
+	system.Name = form.Name
+	system.Description = form.Description
+	system.Repository = form.Repository
+	system.Updated = time.Now()
+
+	// Guardar cambios
+	if err := h.service.UpdateSystem(&system); err != nil {
+		message := "Error al actualizar el sistema"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
+		return
+	}
+
+	// Éxito - redireccionar con mensaje
+	message := "Sistema actualizado exitosamente"
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=success", systemID, url.QueryEscape(message)))
+}
+
+func (h *SystemHandler) handleEditSystemGet(c *gin.Context, systemID uint64) {
+	// Obtener el sistema de la base de datos
+	var system domain.System
+
+	if err := h.service.FetchSystem(systemID, &system); err != nil {
+		message := ""
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			message = "Sistema no encontrado"
+		} else {
+			message = "Error al cargar el sistema"
+		}
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Obtener token CSRF
+	csrfToken, _ := c.Get("csrf_token")
+	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+
+	// mensajes por URL, si lo hubiere
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
+
+	c.HTML(http.StatusOK, "systems/edit", gin.H{
+		"title":     "Editar Sistema - " + system.Name,
+		"csrfToken": csrfToken,
+		"globals":   globals,
+		"system":    system,
+		"session":   sessionData.(middleware.SessionData),
+		"navLink":   "systems",
+		"message":   message,
+		"styles":    []string{},
+		"scripts":   []string{},
+	})
+}
+
+func (h *SystemHandler) DeleteSystemHandler(c *gin.Context) {
+	// Obtener parámetros
+	systemIdStr := c.Param("id")
+
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIdStr, 10, 32)
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape("ID de sistema inválido")))
+		return
+	}
+
+	// Verificar si el sistema existe primero
+	var system domain.System
+	if err := h.service.FetchSystem(systemID, &system); err != nil {
+		message := ""
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			message = "Sistema no encontrado"
+		} else {
+			message = "Error al verificar el sistema"
+		}
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Eliminar el sistema
+	if err := h.service.DeleteSystem(systemID); err != nil {
+		message := "Error al eliminar el sistema"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Éxito
+	message := "Sistema eliminado exitosamente"
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
 }

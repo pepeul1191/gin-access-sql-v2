@@ -49,6 +49,23 @@ func (r *SystemRepository) GetPaginated(page, perPage int, nameQuery, descQuery 
 	return systems, total, err
 }
 
+func (r *SystemRepository) GetByID(id uint64) (domain.System, error) {
+	var system domain.System
+	result := r.db.First(&system, id)
+	if result.Error != nil {
+		return domain.System{}, result.Error
+	}
+	return system, nil
+}
+
 func (r *SystemRepository) Create(system *domain.System) error {
 	return r.db.Create(system).Error
+}
+
+func (r *SystemRepository) Update(system *domain.System) error {
+	return r.db.Save(system).Error
+}
+
+func (r *SystemRepository) Delete(id uint64) error {
+	return r.db.Delete(&domain.System{}, id).Error
 }

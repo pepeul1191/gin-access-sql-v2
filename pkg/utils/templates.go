@@ -7,6 +7,11 @@ import (
 	"strings"
 )
 
+type Message struct {
+	Content string
+	Type    string
+}
+
 func FirstFlashOrEmpty(flashes []interface{}) string {
 	if len(flashes) > 0 {
 		return flashes[0].(string)
