@@ -21,7 +21,7 @@ func (s *UserService) GetAllUsers() ([]domain.User, error) {
 	return s.repo.GetAll()
 }
 
-func (s *UserService) GetPaginatedUsers(page, perPage int, usernameQuery, descQuery string) ([]domain.User, int64, error) {
+func (s *UserService) GetPaginatedUsers(page, perPage int, usernameQuery, emailQuery string, statusFilter string) ([]domain.User, int64, error) {
 	// Validación básica
 	if page < 1 {
 		page = 1
@@ -31,7 +31,7 @@ func (s *UserService) GetPaginatedUsers(page, perPage int, usernameQuery, descQu
 	}
 
 	// Delegar al repositorio
-	return s.repo.GetPaginated(page, perPage, usernameQuery, descQuery)
+	return s.repo.GetPaginated(page, perPage, usernameQuery, emailQuery, statusFilter)
 }
 
 func (s *UserService) CreateUser(input *forms.UserCreateInput) (*domain.User, error) {

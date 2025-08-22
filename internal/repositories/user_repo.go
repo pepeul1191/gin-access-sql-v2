@@ -24,7 +24,7 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) GetPaginated(page, perPage int, usernameQuery, emailQuery string) ([]domain.User, int64, error) {
+func (r *UserRepository) GetPaginated(page, perPage int, usernameQuery, emailQuery string, statusQuery string) ([]domain.User, int64, error) {
 	var users []domain.User
 	var total int64
 
@@ -36,6 +36,15 @@ func (r *UserRepository) GetPaginated(page, perPage int, usernameQuery, emailQue
 
 	if emailQuery != "" {
 		query = query.Where("email LIKE ?", "%"+emailQuery+"%")
+	}
+
+	// Filtro por estado
+	if statusQuery != "" {
+		if statusQuery == "active" {
+			query = query.Where("activated = ?", true)
+		} else if statusQuery == "inactive" {
+			query = query.Where("activated = ?", false)
+		}
 	}
 
 	// Contar el total

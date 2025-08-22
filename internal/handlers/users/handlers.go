@@ -32,6 +32,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "10"))
 	usernameQuery := strings.TrimSpace(c.Query("username"))
 	emailQuery := strings.TrimSpace(c.Query("email"))
+	statusQuery := strings.TrimSpace(c.Query("status")) // Nuevo parámetro
 
 	// Validar parámetros
 	if page < 1 {
@@ -42,7 +43,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 	}
 
 	// Obtener sistemas paginados
-	users, total, err := h.service.GetPaginatedUsers(page, perPage, usernameQuery, emailQuery)
+	users, total, err := h.service.GetPaginatedUsers(page, perPage, usernameQuery, emailQuery, statusQuery)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
 			"message": "Error al obtener los usuarios",
@@ -84,6 +85,7 @@ func (h *UserHandler) ListUsers(c *gin.Context) {
 		"totalUsers":    total,
 		"usernameQuery": usernameQuery,
 		"emailQuery":    emailQuery,
+		"statusQuery":   statusQuery, // Nuevo parámetro
 		"startRecord":   startRecord,
 		"endRecord":     endRecord,
 		"globals":       globals,
