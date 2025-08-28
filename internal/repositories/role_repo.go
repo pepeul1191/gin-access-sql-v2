@@ -18,7 +18,7 @@ func NewRoleRepository(db *gorm.DB) *RoleRepository {
 func (r *RoleRepository) CheckRoleExistsInSystem(name string, systemID int) error {
 	var existingRole domain.Role
 	query := r.db.Model(&domain.Role{}).
-		Where("name = ? OR system_id = ?", name, systemID)
+		Where("name = ? AND system_id = ?", name, systemID)
 
 	result := query.First(&existingRole)
 	if result.Error != nil {
@@ -29,6 +29,24 @@ func (r *RoleRepository) CheckRoleExistsInSystem(name string, systemID int) erro
 	}
 
 	return errors.New("Nombre de usuario ya en uso en el sistema")
+}
+
+func (r *RoleRepository) GetPaginated(page, perPage int, systemID int) ([]domain.Role, int64, error) {
+	var roles []domain.Role
+	var total int64
+
+	query := r.db.Model(&domain.Role{})
+
+	// Contar el total
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	// Aplicar paginación
+	offset := (page - 1) * perPage
+	err := query.Where("system_id = ?", systemID).Offset(offset).Limit(perPage).Find(&roles).Error
+
+	return roles, total, err
 }
 
 func (r *RoleRepository) GetRolesBySystemID(systemID int) ([]domain.Role, error) {

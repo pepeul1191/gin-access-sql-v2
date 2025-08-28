@@ -118,7 +118,7 @@ func (h *RoleHandler) CreateRoleHandler(c *gin.Context) {
 				Content: err.Error(),
 				Type:    "danger",
 			}
-			c.HTML(http.StatusBadRequest, fmt.Sprintf("systems/%d/edit/", systemID), gin.H{
+			c.HTML(http.StatusBadRequest, "roles/edit", gin.H{
 				"title":     "Error al crear rol",
 				"error":     err.Error(),
 				"csrfToken": csrfToken,

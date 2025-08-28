@@ -19,11 +19,12 @@ import (
 )
 
 type SystemHandler struct {
-	service *services.SystemService
+	service     *services.SystemService
+	roleService *services.RoleService
 }
 
-func NewSystemHandler(service *services.SystemService) *SystemHandler {
-	return &SystemHandler{service: service}
+func NewSystemHandler(service *services.SystemService, roleService *services.RoleService) *SystemHandler {
+	return &SystemHandler{service: service, roleService: roleService}
 }
 
 func (h *SystemHandler) ListSystems(c *gin.Context) {
@@ -238,6 +239,30 @@ func (h *SystemHandler) handleEditSystemGet(c *gin.Context, systemID uint64) {
 		return
 	}
 
+	// Obtener parámetros de paginación y búsqueda
+	pageRole, _ := strconv.Atoi(c.DefaultQuery("page_roles", "1"))
+	perPageRole, _ := strconv.Atoi(c.DefaultQuery("per_page_roles", "10"))
+
+	var roles []domain.Role
+
+	roles, totalRoles, err := h.roleService.GetPaginatedSystemRoles(pageRole, perPageRole, int(systemID))
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape("Error al buscar los roles del sistema")))
+		return
+	}
+
+	// Calcular total de páginas
+	totalPagesRoles := int(totalRoles) / perPageRole
+	if int(totalRoles)%perPageRole > 0 {
+		totalPagesRoles++
+	}
+	// Calcular registros mostrados
+	startRecordRoles := (pageRole-1)*perPageRole + 1
+	endRecordRoles := pageRole * perPageRole
+	if endRecordRoles > int(totalRoles) {
+		endRecordRoles = int(totalRoles)
+	}
+
 	// Obtener token CSRF
 	csrfToken, _ := c.Get("csrf_token")
 	globals, _ := c.Get("globals")
@@ -250,15 +275,23 @@ func (h *SystemHandler) handleEditSystemGet(c *gin.Context, systemID uint64) {
 	}
 
 	c.HTML(http.StatusOK, "systems/edit", gin.H{
-		"title":     "Editar Sistema - " + system.Name,
-		"csrfToken": csrfToken,
-		"globals":   globals,
-		"system":    system,
-		"session":   sessionData.(middleware.SessionData),
-		"navLink":   "systems",
-		"message":   message,
-		"styles":    []string{},
-		"scripts":   []string{},
+		"title":            "Editar Sistema - " + system.Name,
+		"csrfToken":        csrfToken,
+		"globals":          globals,
+		"system":           system,
+		"session":          sessionData.(middleware.SessionData),
+		"navLink":          "systems",
+		"message":          message,
+		"systemID":         systemID,
+		"roles":            roles,
+		"pageRole":         pageRole,
+		"perPageRole":      perPageRole,
+		"totalPagesRoles":  totalPagesRoles,
+		"startRecordRoles": startRecordRoles,
+		"endRecordRoles":   endRecordRoles,
+		"totalRoles":       totalRoles,
+		"styles":           []string{},
+		"scripts":          []string{},
 	})
 }
 

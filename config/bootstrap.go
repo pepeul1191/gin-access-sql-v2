@@ -68,7 +68,7 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	// Inicialización de handlers
 	commonHandler := common.NewCommonHandler()
 	authHandler := auth.NewAuthHandler(authService)
-	systemHandler := systems.NewSystemHandler(systemService)
+	systemHandler := systems.NewSystemHandler(systemService, roleService)
 	userHandler := users.NewUserHandler(userService)
 	roleHandler := roles.NewRoleHandler(roleService)
 

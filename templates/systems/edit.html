@@ -89,14 +89,12 @@
             <div class="d-flex align-items-center me-3">
               <label for="rows-per-page" class="form-label mb-0 me-2">Filas por página:</label>
               <form method="GET" id="per_page_form">
-                <input type="hidden" name="name" value="{{.nameQuery}}">
-                <input type="hidden" name="description" value="{{.descriptionQuery}}">
-                <select name="per_page" class="form-select" style="width: 120px;" onchange="this.form.submit()">
-                  <option value="5" {{if eq .perPage 5}}selected{{end}}>5</option>
-                  <option value="10" {{if eq .perPage 10}}selected{{end}}>10</option>
-                  <option value="25" {{if eq .perPage 25}}selected{{end}}>25</option>
-                  <option value="50" {{if eq .perPage 50}}selected{{end}}>50</option>
-                  <option value="100" {{if eq .perPage 100}}selected{{end}}>100</option>
+                <select name="per_page_roles" class="form-select" style="width: 120px;" onchange="this.form.submit()">
+                  <option value="5" {{if eq .perPageRole 5}}selected{{end}}>5</option>
+                  <option value="10" {{if eq .perPageRole 10}}selected{{end}}>10</option>
+                  <option value="25" {{if eq .perPageRole 25}}selected{{end}}>25</option>
+                  <option value="50" {{if eq .perPageRole 50}}selected{{end}}>50</option>
+                  <option value="100" {{if eq .perPageRole 100}}selected{{end}}>100</option>
                 </select>
               </form>
             </div>
@@ -109,24 +107,63 @@
                 </tr>
               </thead>
               <tbody>
-                {{range .systems}}
+                {{range .roles}}
                 <tr>
                   <td>{{.Name}}</td>
                   <td class="text-end btn-group-sm">
-                    <a href="/systems/{{.ID}}/edit" class="btn btn-outline-secondary me-1">
+                    <a href="/systems/{{$.systemID}}/roles/{{.ID}}/edit" class="btn btn-outline-secondary me-1">
                       <i class="fa fa-edit"></i> Editar
                     </a>
-                    <a href="/systems/{{.ID}}/delete" class="btn btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este sistema?');">
+                    <a href="/systems/{{$.systemID}}/roles/{{.ID}}/delete" class="btn btn-outline-danger" onclick="return confirm('¿Estás seguro de eliminar este rol y sus permisos?');">
                       <i class="fa fa-trash"></i> Eliminar
                     </a>
                   </td>
                 </tr>
                 {{else}}
                 <tr>
-                  <td colspan="6" class="text-center">No se encontraron sistemas.</td>
+                  <td colspan="6" class="text-center">No se encontraron roles del sistema.</td>
                 </tr>
                 {{end}}
-              </tbody>
+                </tbody>
+                            <tfoot>
+                <tr>
+                  <td colspan="6">
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div class="text-left">
+                          Página {{.page}} de {{.totalPagesRoles}} - Mostrando registros {{.startRecordRoles}} - {{.endRecordRoles}} de un total de {{.totalRoles}}
+                        </div>
+
+                      <nav aria-label="Page navigation">
+                        <ul class="pagination mb-0">
+                          <li class="page-item {{if eq .pageRole 1}}disabled{{end}}">
+                            <a class="page-link" href="/systems/{{.systemID}}/edit?page_roles=1&per_page_roles={{.perPageRole}}" aria-label="First">
+                                <i class="fa fa-angle-double-left"></i> Primero
+                            </a>
+                          </li>
+
+                          <li class="page-item {{if eq .pageRole 1}}disabled{{end}}">
+                            <a class="page-link" href="/systems/{{.systemID}}/edit?page_roles={{sub .pageRole 1}}&per_page_roles={{.perPageRole}}" aria-label="Previous">
+                                <i class="fa fa-angle-left"></i> Anterior
+                            </a>
+                          </li>
+
+                          <li class="page-item {{if eq .pageRole .totalPagesRoles}}disabled{{end}}">
+                            <a class="page-link" href="/systems/{{.systemID}}/edit?page_roles={{add .pageRole 1}}&per_page_roles={{.perPageRole}}" aria-label="Next">
+                                Siguiente <i class="fa fa-angle-right"></i>
+                            </a>
+                          </li>
+
+                          <li class="page-item {{if eq .pageRole .totalPagesRoles}}disabled{{end}}">
+                            <a class="page-link" href="/systems/{{.systemID}}/edit?page_roles={{.totalPagesRoles}}&per_page_roles={{.perPageRole}}" aria-label="Last">
+                                Último <i class="fa fa-angle-double-right"></i>
+                            </a>
+                          </li>
+                        </ul>
+                      </nav>
+                    </div>
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div> 

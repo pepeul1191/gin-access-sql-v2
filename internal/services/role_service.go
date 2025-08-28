@@ -16,6 +16,19 @@ func NewRoleService(repo *repositories.RoleRepository) *RoleService {
 	return &RoleService{repo: repo}
 }
 
+func (s *RoleService) GetPaginatedSystemRoles(page, perPage int, systemID int) ([]domain.Role, int64, error) {
+	// Validación básica
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 {
+		perPage = 10
+	}
+
+	// Delegar al repositorio
+	return s.repo.GetPaginated(page, perPage, systemID)
+}
+
 func (s *RoleService) GetAllBySystemID(systemID int) ([]domain.Role, error) {
 	// Delegar al repositorio
 	return s.repo.GetRolesBySystemID(systemID)
@@ -38,7 +51,8 @@ func (s *RoleService) CreateRole(input *forms.RoleCreateInput, systemID int) (*d
 	}
 	// Crear objeto del dominio
 	role := &domain.Role{
-		Name: input.Name,
+		Name:     input.Name,
+		SystemID: uint(systemID),
 	}
 
 	// Establecer fechas por defecto si no vienen
