@@ -87,47 +87,20 @@ func (h *RoleHandler) CreateRoleHandler(c *gin.Context) {
 		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
 		return
 	}
+
 	// Manejar método POST
 	if c.Request.Method == http.MethodPost {
 		var input forms.RoleCreateInput
 		// Parsear formulario
 		if err := c.ShouldBind(&input); err != nil {
-			message := utils.Message{
-				Content: err.Error(),
-				Type:    "danger",
-			}
-			csrfToken, _ := c.Get("csrf_token")
-			c.HTML(http.StatusBadRequest, fmt.Sprintf("roles/create"), gin.H{
-				"title":     "Error al crear usuario",
-				"error":     err.Error(),
-				"csrfToken": csrfToken,
-				"form":      c.Request.PostForm,
-				"globals":   globals,
-				"message":   message,
-				"systemID":  systemID,
-				"session":   sessionData.(middleware.SessionData),
-				"navLink":   "users",
-			})
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/roles?message=%s&type=danger", systemID, err.Error()))
 			return
 		}
 
 		// Crear usuario a través del servicio
 		role, err := h.service.CreateRole(&input, int(systemID))
 		if err != nil {
-			message := utils.Message{
-				Content: err.Error(),
-				Type:    "danger",
-			}
-			c.HTML(http.StatusBadRequest, "roles/edit", gin.H{
-				"title":     "Error al crear rol",
-				"error":     err.Error(),
-				"csrfToken": csrfToken,
-				"form":      input,
-				"globals":   globals,
-				"message":   message,
-				"session":   sessionData.(middleware.SessionData),
-				"navLink":   "users",
-			})
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/roles?message=%s&type=danger", systemID, err.Error()))
 			return
 		}
 
@@ -137,10 +110,15 @@ func (h *RoleHandler) CreateRoleHandler(c *gin.Context) {
 		return
 	}
 	// Manejar método GET (muestra el formulario)
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
 	c.HTML(http.StatusOK, "roles/create", gin.H{
 		"title":     "Crear Nuevo Usuario",
 		"systemID":  systemID,
 		"globals":   globals,
+		"message":   message,
 		"session":   sessionData.(middleware.SessionData),
 		"navLink":   "users",
 		"csrfToken": csrfToken,
@@ -209,7 +187,7 @@ func (h *RoleHandler) handleEditRolePost(c *gin.Context, systemID uint64, roleID
 
 	// Guardar cambios
 	if err := h.service.UpdateRole(&role); err != nil {
-		message := "Error al actualizar el rol"
+		message := err.Error()
 		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/roles/%d/edit?message=%s&type=danger", systemID, roleID, url.QueryEscape(message)))
 		return
 	}
@@ -236,6 +214,7 @@ func (h *RoleHandler) handleEditRoleGet(c *gin.Context, systemID uint64, roleID 
 
 	// Obtener token CSRF
 	csrfToken, _ := c.Get("csrf_token")
+
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 
@@ -259,40 +238,48 @@ func (h *RoleHandler) handleEditRoleGet(c *gin.Context, systemID uint64, roleID 
 	})
 }
 
-/*
-func (h *UserHandler) DeleteUserHandler(c *gin.Context) {
+func (h *RoleHandler) DeleteRoleHandler(c *gin.Context) {
 	// Obtener parámetros
-	userIDStr := c.Param("id")
+	systemIdStr := c.Param("id")
+	roleIdStr := c.Param("role_id")
 
-	// Convertir el ID del usuario
-	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIdStr, 10, 32)
 	if err != nil {
-		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape("ID de usuario inválido")))
+		message := "ID de sistema no inválido"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
 		return
 	}
 
-	// Verificar si el usuario existe primero
-	var user domain.User
-	if err := h.service.FetchUser(userID, &user); err != nil {
+	// Convertir el ID del rol
+	roleID, err := strconv.ParseUint(roleIdStr, 10, 32)
+	if err != nil {
+		message := "ID de rol no inválido"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
+		return
+	}
+
+	// Verificar si el rol existe primero
+	var role domain.Role
+	if err := h.service.FetchRole(roleID, &role); err != nil {
 		message := ""
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			message = "Usuario no encontrado"
+			message = "Rol no encontrado"
 		} else {
-			message = "Error al verificar el usuario"
+			message = "Error al verificar el rol"
 		}
-		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape(message)))
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
 		return
 	}
 
-	// Eliminar el usuario
-	if err := h.service.DeleteUser(userID); err != nil {
-		message := "Error al eliminar el usuario"
-		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape(message)))
+	// Eliminar el rol
+	if err := h.service.DeleteRole(roleID); err != nil {
+		message := "Error al eliminar el rol"
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=danger", systemID, url.QueryEscape(message)))
 		return
 	}
 
 	// Éxito
-	message := "Ysuario eliminado exitosamente"
-	c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=success", url.QueryEscape(message)))
+	message := "Rol eliminado exitosamente"
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/edit?message=%s&type=success", systemID, url.QueryEscape(message)))
 }
-*/

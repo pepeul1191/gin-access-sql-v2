@@ -47,7 +47,7 @@ func (s *RoleService) CreateRole(input *forms.RoleCreateInput, systemID int) (*d
 	// Validación única
 	err := s.repo.CheckRoleExistsInSystem(input.Name, systemID)
 	if err != nil {
-		return nil, errors.New("Nombre de sol ya en uso en el sistema")
+		return nil, errors.New("Nombre de rol ya en uso en el sistema")
 	}
 	// Crear objeto del dominio
 	role := &domain.Role{
@@ -92,6 +92,11 @@ func (s *RoleService) FetchRole(id uint64, role *domain.Role) error {
 func (s *RoleService) UpdateRole(role *domain.Role) error {
 	if role.ID == 0 {
 		return errors.New("ID de rol no inválido")
+	}
+
+	err := s.repo.CheckRoleNameExistsForUpdate(role.Name, int(role.SystemID), int(role.ID))
+	if err != nil {
+		return err // Si se encuentra un error (otro rol con el mismo nombre), retornarlo.
 	}
 
 	role.Updated = time.Now()

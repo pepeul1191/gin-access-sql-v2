@@ -31,11 +31,28 @@ func (r *RoleRepository) CheckRoleExistsInSystem(name string, systemID int) erro
 	return errors.New("Nombre de usuario ya en uso en el sistema")
 }
 
+func (r *RoleRepository) CheckRoleNameExistsForUpdate(name string, systemID, roleID int) error {
+	var existingRole domain.Role
+	query := r.db.Model(&domain.Role{}).
+		Where("name = ? AND system_id = ? AND id != ?", name, systemID, roleID)
+
+	result := query.First(&existingRole)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil // No existe otro rol con ese nombre, todo bien
+		}
+		return result.Error // Error de base de datos
+	}
+
+	// Se encontró un rol con el mismo nombre y systemID, pero con un ID diferente
+	return errors.New("Ya existe un rol con este nombre en el sistema")
+}
+
 func (r *RoleRepository) GetPaginated(page, perPage int, systemID int) ([]domain.Role, int64, error) {
 	var roles []domain.Role
 	var total int64
 
-	query := r.db.Model(&domain.Role{})
+	query := r.db.Model(&domain.Role{}).Where("system_id = ?", systemID)
 
 	// Contar el total
 	if err := query.Count(&total).Error; err != nil {
@@ -44,7 +61,7 @@ func (r *RoleRepository) GetPaginated(page, perPage int, systemID int) ([]domain
 
 	// Aplicar paginación
 	offset := (page - 1) * perPage
-	err := query.Where("system_id = ?", systemID).Offset(offset).Limit(perPage).Find(&roles).Error
+	err := query.Offset(offset).Limit(perPage).Find(&roles).Error
 
 	return roles, total, err
 }

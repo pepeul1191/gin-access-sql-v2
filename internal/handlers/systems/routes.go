@@ -29,6 +29,7 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 			systemByIDGroup.GET("/roles", roleHandler.CreateRoleHandler)
 			systemByIDGroup.POST("/roles/:role_id/edit", roleHandler.EditRoleHandler)
 			systemByIDGroup.GET("/roles/:role_id/edit", roleHandler.EditRoleHandler)
+			systemByIDGroup.GET("/roles/:role_id/delete", roleHandler.DeleteRoleHandler)
 		}
 	}
 }
