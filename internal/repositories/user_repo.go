@@ -3,6 +3,7 @@ package repositories
 
 import (
 	"accessv2/internal/domain"
+	"errors"
 
 	"gorm.io/gorm"
 )
@@ -22,6 +23,34 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
 		return nil, result.Error
 	}
 	return users, nil
+}
+
+func (r *UserRepository) CheckUserExistsWithError(username, email string, excludeID uint) error {
+	var existingUser domain.User
+	query := r.db.Model(&domain.User{}).
+		Where("username = ? OR email = ?", username, email)
+
+	if excludeID > 0 {
+		query = query.Where("id != ?", excludeID)
+	}
+
+	result := query.First(&existingUser)
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil // No existe, todo bien
+		}
+		return result.Error // Error de base de datos
+	}
+
+	// Determinar qué campo causó el conflicto
+	if existingUser.Username == username {
+		return errors.New("username already exists")
+	}
+	if existingUser.Email == email {
+		return errors.New("email already exists")
+	}
+
+	return nil
 }
 
 func (r *UserRepository) GetPaginated(page, perPage int, usernameQuery, emailQuery string, statusQuery string) ([]domain.User, int64, error) {

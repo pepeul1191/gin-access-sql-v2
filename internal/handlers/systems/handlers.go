@@ -131,14 +131,14 @@ func (h *SystemHandler) CreateSystemHandler(c *gin.Context) {
 				Type:    "danger",
 			}
 			c.HTML(http.StatusBadRequest, "systems/create", gin.H{
-				"title":   "Error al crear sistema",
-				"error":   err.Error(),
-				"csrf":    csrfToken,
-				"values":  c.Request.PostForm,
-				"globals": globals,
-				"message": message,
-				"session": sessionData.(middleware.SessionData),
-				"navLink": "systems",
+				"title":     "Error al crear sistema",
+				"error":     err.Error(),
+				"csrfToken": csrfToken,
+				"values":    c.Request.PostForm,
+				"globals":   globals,
+				"message":   message,
+				"session":   sessionData.(middleware.SessionData),
+				"navLink":   "systems",
 			})
 			return
 		}

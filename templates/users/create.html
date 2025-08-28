@@ -25,19 +25,28 @@
           <input type="hidden" name="_csrf" value="{{.csrfToken}}">
           
           <div class="row mb-3">
-            <div class="col-md-2">
-              <label for="name" class="form-label">Nombre*</label>
-              <input type="text" class="form-control" id="name" name="name" required>
+            <div class="col-md-3">
+              <label for="username" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="username" name="username" required value="{{.form.Username}}">
             </div>
             
-            <div class="col-md-4">
-              <label for="repository" class="form-label">Repositorio</label>
-              <input type="url" class="form-control" id="repository" name="repository" placeholder="https://">
+            <div class="col-md-3">
+              <label for="email" class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" id="email" name="email" value="{{.form.Email}}">
             </div>
             
-            <div class="col-md-6">
-              <label for="description" class="form-label">Descripción</label>
-              <input class="form-control" id="description" name="description" />
+            <div class="col-md-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="password" name="password" value="{{.form.Password}}"/>
+            </div>
+
+            <div class="col-md-3">
+              <label for="status" class="form-label">Estado</label>
+              <select id="status" name="status" class="form-select">
+                <option value="">Todos los estados</option>
+                <option value="active" {{if eq .form.Status "active"}}selected{{end}}>Activo</option>
+                <option value="inactive" {{if eq .form.Status "inactive"}}selected{{end}}>Inactivo</option>
+              </select>
             </div>
           </div>
           
@@ -58,6 +67,9 @@
               <a href="/users" class="btn btn-secondary me-2">
                 <i class="fa fa-arrow-left"></i> Cancelar
               </a>
+              <button class="btn btn-primary">
+                <i class="fa fa-refresh"></i> Generar Contraseña
+              </button>
               <button type="submit" class="btn btn-primary">
                 <i class="fa fa-save"></i> Guardar
               </button>

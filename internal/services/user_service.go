@@ -44,6 +44,17 @@ func (s *UserService) CreateUser(input *forms.UserCreateInput) (*domain.User, er
 		return nil, ErrUserNameRequired
 	}
 
+	// Validación única
+	err := s.repo.CheckUserExistsWithError(input.Username, input.Email, 0)
+	if err != nil {
+		return nil, errors.New("Usuario y/o correo en uso")
+	}
+
+	activated := false
+	if input.Status == "active" {
+		activated = true
+	}
+
 	// Crear objeto del dominio
 	user := &domain.User{
 		Username:      input.Username,
@@ -51,7 +62,7 @@ func (s *UserService) CreateUser(input *forms.UserCreateInput) (*domain.User, er
 		Email:         input.Email,
 		ResetKey:      utils.RandomString(30),
 		ActivationKey: utils.RandomString(30),
-		Activated:     false,
+		Activated:     activated,
 	}
 
 	// Establecer fechas por defecto si no vienen
