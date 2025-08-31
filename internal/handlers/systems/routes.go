@@ -1,12 +1,13 @@
 package systems
 
 import (
+	"accessv2/internal/handlers/permissions"
 	"accessv2/internal/handlers/roles"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler) {
+func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler, permissionHandler *permissions.PermissionHandler) {
 
 	// Main systems group
 	systemsGroup := r.Group("/systems")
@@ -30,6 +31,15 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 			systemByIDGroup.POST("/roles/:role_id/edit", roleHandler.EditRoleHandler)
 			systemByIDGroup.GET("/roles/:role_id/edit", roleHandler.EditRoleHandler)
 			systemByIDGroup.GET("/roles/:role_id/delete", roleHandler.DeleteRoleHandler)
+
+			// permissions
+			// Routes for roles, now nested correctly under the specific system group
+			systemByIDGroup.GET("/roles/:role_id/permissions", handler.EditSystemHandler)
+			systemByIDGroup.POST("/roles/:role_id/permissions/create", permissionHandler.CreatePermissionHandler)
+			systemByIDGroup.GET("/roles/:role_id/permissions/create", permissionHandler.CreatePermissionHandler)
+			systemByIDGroup.POST("/roles/:role_id/permissions/:permission_id/edit", permissionHandler.EditPermissionHandler)
+			systemByIDGroup.GET("/roles/:role_id/permissions/:permission_id/edit", permissionHandler.EditPermissionHandler)
+			systemByIDGroup.GET("/roles/:role_id/permissions/:permission_id/delete", permissionHandler.DeletePermissionHandler)
 		}
 	}
 }

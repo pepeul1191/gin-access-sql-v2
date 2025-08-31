@@ -4,6 +4,7 @@ package config
 import (
 	"accessv2/internal/handlers/auth"
 	"accessv2/internal/handlers/common"
+	"accessv2/internal/handlers/permissions"
 	"accessv2/internal/handlers/roles"
 	"accessv2/internal/handlers/systems"
 	"accessv2/internal/handlers/users"
@@ -58,24 +59,27 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	systemRepo := repositories.NewSystemRepository(db)
 	userRepo := repositories.NewUserRepository(db)
 	roleRepo := repositories.NewRoleRepository(db)
+	permissionRepo := repositories.NewPermissionRepository(db)
 
 	// Inicialización de servicios
 	authService := services.NewAuthService()
 	systemService := services.NewSystemService(systemRepo)
+	permissionService := services.NewPermissionService(permissionRepo)
 	userService := services.NewUserService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
 
 	// Inicialización de handlers
 	commonHandler := common.NewCommonHandler()
 	authHandler := auth.NewAuthHandler(authService)
-	systemHandler := systems.NewSystemHandler(systemService, roleService)
+	systemHandler := systems.NewSystemHandler(systemService, roleService, permissionService)
 	userHandler := users.NewUserHandler(userService)
 	roleHandler := roles.NewRoleHandler(roleService)
+	permissionHandler := permissions.NewPermissionHandler(permissionService)
 
 	// Registrar rutas
 	common.RegisterCommonRoutes(router, commonHandler)
 	auth.RegisterAuthRoutes(router, authHandler)
-	systems.RegisterSystemsRoutes(router, systemHandler, roleHandler)
+	systems.RegisterSystemsRoutes(router, systemHandler, roleHandler, permissionHandler)
 	users.RegisterUserRoutes(router, userHandler)
 
 	return router

@@ -19,12 +19,13 @@ import (
 )
 
 type SystemHandler struct {
-	service     *services.SystemService
-	roleService *services.RoleService
+	service           *services.SystemService
+	roleService       *services.RoleService
+	permissionService *services.PermissionService
 }
 
-func NewSystemHandler(service *services.SystemService, roleService *services.RoleService) *SystemHandler {
-	return &SystemHandler{service: service, roleService: roleService}
+func NewSystemHandler(service *services.SystemService, roleService *services.RoleService, permissionService *services.PermissionService) *SystemHandler {
+	return &SystemHandler{service: service, roleService: roleService, permissionService: permissionService}
 }
 
 func (h *SystemHandler) ListSystems(c *gin.Context) {
@@ -174,6 +175,23 @@ func (h *SystemHandler) EditSystemHandler(c *gin.Context) {
 	// Manejar método POST
 	if c.Request.Method == http.MethodPost {
 		h.handleEditSystemPost(c, systemID)
+		return
+	}
+
+	// Verificar si el path contiene "permissions"
+	if strings.Contains(c.Request.URL.Path, "permissions") {
+		roleIdStr := c.Param("role_id")
+
+		// Convertir el ID del sistema
+		roleID, err := strconv.ParseUint(roleIdStr, 10, 32)
+		if err != nil {
+			message := "ID de rol inválido"
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+			return
+		}
+
+		// Lógica específica para permisos
+		h.handleSystemRolesPermissions(c, systemID, roleID)
 		return
 	}
 
@@ -329,4 +347,117 @@ func (h *SystemHandler) DeleteSystemHandler(c *gin.Context) {
 	// Éxito
 	message := "Sistema eliminado exitosamente"
 	c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=success", url.QueryEscape(message)))
+}
+
+func (h *SystemHandler) handleSystemRolesPermissions(c *gin.Context, systemID uint64, roleID uint64) {
+	// Obtener el sistema de la base de datos
+	var system domain.System
+
+	if err := h.service.FetchSystem(systemID, &system); err != nil {
+		message := ""
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			message = "Sistema no encontrado"
+		} else {
+			message = "Error al cargar el sistema"
+		}
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape(message)))
+		return
+	}
+
+	// Obtener parámetros de paginación y búsqueda
+	pageRole, _ := strconv.Atoi(c.DefaultQuery("page_roles", "1"))
+	perPageRole, _ := strconv.Atoi(c.DefaultQuery("per_page_roles", "10"))
+
+	var roles []domain.Role
+
+	roles, totalRoles, err := h.roleService.GetPaginatedSystemRoles(pageRole, perPageRole, int(systemID))
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape("Error al buscar los roles del sistema")))
+		return
+	}
+
+	// Calcular total de páginas
+	totalPagesRoles := int(totalRoles) / perPageRole
+	if int(totalRoles)%perPageRole > 0 {
+		totalPagesRoles++
+	}
+	// Calcular registros mostrados
+	startRecordRoles := (pageRole-1)*perPageRole + 1
+	endRecordRoles := pageRole * perPageRole
+	if endRecordRoles > int(totalRoles) {
+		endRecordRoles = int(totalRoles)
+	}
+
+	// buscar rol por id
+	var role domain.Role
+	if err := h.roleService.FetchRole(roleID, &role); err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape("Error al buscar los permisos del rol")))
+		return
+	}
+
+	// Obtener parámetros de paginación y búsqueda del permiso
+	pagePermission, _ := strconv.Atoi(c.DefaultQuery("page_permissions", "1"))
+	perPagePermission, _ := strconv.Atoi(c.DefaultQuery("per_page_permissions", "10"))
+
+	var permissions []domain.Permission
+
+	permissions, totalPermissions, err := h.permissionService.GetPaginatedRolePermissions(pagePermission, perPagePermission, int(roleID))
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/roles/%d?message=%s&type=danger", url.QueryEscape("Error al buscar los roles del sistema")))
+		return
+	}
+
+	// Calcular total de páginas
+	totalPagesPermissions := int(totalPermissions) / perPagePermission
+	if int(totalRoles)%perPageRole > 0 {
+		totalPagesPermissions++
+	}
+	// Calcular registros mostrados
+	startRecordPermissions := (pagePermission-1)*perPagePermission + 1
+	endRecordPermissions := pagePermission * perPagePermission
+	if endRecordPermissions > int(totalPermissions) {
+		endRecordPermissions = int(totalPermissions)
+	}
+
+	// Obtener token CSRF
+	csrfToken, _ := c.Get("csrf_token")
+	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+
+	// mensajes por URL, si lo hubiere
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
+
+	c.HTML(http.StatusOK, "systems/permissions", gin.H{
+		"title":     "Editar Sistema - " + system.Name,
+		"csrfToken": csrfToken,
+		"globals":   globals,
+		"system":    system,
+		"session":   sessionData.(middleware.SessionData),
+		"navLink":   "systems",
+		"message":   message,
+		"systemID":  systemID,
+		// roles
+		"roles":            roles,
+		"role":             role,
+		"pageRole":         pageRole,
+		"perPageRole":      perPageRole,
+		"totalPagesRoles":  totalPagesRoles,
+		"startRecordRoles": startRecordRoles,
+		"endRecordRoles":   endRecordRoles,
+		"totalRoles":       totalRoles,
+		// permissions
+		"roleID":                 roleID,
+		"permissions":            permissions,
+		"pagePermission":         pagePermission,
+		"perPagePermission":      perPagePermission,
+		"totalPagesPermissions":  totalPagesPermissions,
+		"startRecordPermissions": startRecordPermissions,
+		"endRecordPermissions":   endRecordPermissions,
+		"totalPermissions":       totalPermissions,
+		"styles":                 []string{},
+		"scripts":                []string{},
+	})
 }
