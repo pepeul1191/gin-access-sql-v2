@@ -108,44 +108,14 @@ func (h *UserHandler) CreateUserHandler(c *gin.Context) {
 		var input forms.UserCreateInput
 		// Parsear formulario
 		if err := c.ShouldBind(&input); err != nil {
-			message := utils.Message{
-				Content: err.Error(),
-				Type:    "danger",
-			}
-			csrfToken, _ := c.Get("csrf_token")
-			c.HTML(http.StatusBadRequest, "users/create", gin.H{
-				"title":     "Error al crear usuario",
-				"error":     err.Error(),
-				"csrfToken": csrfToken,
-				"form":      c.Request.PostForm,
-				"globals":   globals,
-				"message":   message,
-				"session":   sessionData.(middleware.SessionData),
-				"navLink":   "users",
-			})
+			c.Redirect(http.StatusFound, fmt.Sprintf("/users/create?message=%s&type=danger", err.Error()))
 			return
 		}
 
 		// Crear usuario a través del servicio
 		user, err := h.service.CreateUser(&input)
 		if err != nil {
-			message := utils.Message{
-				Content: err.Error(),
-				Type:    "danger",
-			}
-			fmt.Println("1 +++++++++++++++++++++++++++")
-			fmt.Println(csrfToken)
-			fmt.Println("2 +++++++++++++++++++++++++++")
-			c.HTML(http.StatusBadRequest, "users/create", gin.H{
-				"title":     "Error al crear usuario",
-				"error":     err.Error(),
-				"csrfToken": csrfToken,
-				"form":      input,
-				"globals":   globals,
-				"message":   message,
-				"session":   sessionData.(middleware.SessionData),
-				"navLink":   "users",
-			})
+			c.Redirect(http.StatusFound, fmt.Sprintf("/users/create?message=%s&type=danger", err.Error()))
 			return
 		}
 
@@ -154,10 +124,15 @@ func (h *UserHandler) CreateUserHandler(c *gin.Context) {
 		c.Redirect(http.StatusFound, fmt.Sprintf("/users/%d/edit?message=%s&type=success", user.ID, message))
 		return
 	}
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
 	// Manejar método GET (muestra el formulario)
 	c.HTML(http.StatusOK, "users/create", gin.H{
 		"title":     "Crear Nuevo Usuario",
 		"globals":   globals,
+		"message":   message,
 		"session":   sessionData.(middleware.SessionData),
 		"navLink":   "users",
 		"csrfToken": csrfToken,
@@ -214,11 +189,19 @@ func (h *UserHandler) handleEditUserPost(c *gin.Context, userID uint64) {
 	// Actualizar datos
 	user.Username = form.Username
 	user.Email = form.Email
+	if form.Password != "1234567890" {
+		user.Password = form.Password
+	}
+	if form.Status == "active" {
+		user.Activated = true
+	} else {
+		user.Activated = false
+	}
 	user.Updated = time.Now()
 
 	// Guardar cambios
 	if err := h.service.UpdateUser(&user); err != nil {
-		message := "Error al actualizar el usuario"
+		message := err.Error()
 		c.Redirect(http.StatusFound, fmt.Sprintf("/users/%d/edit?message=%s&type=danger", userID, url.QueryEscape(message)))
 		return
 	}
@@ -253,6 +236,9 @@ func (h *UserHandler) handleEditUserGet(c *gin.Context, userID uint64) {
 		Content: c.Query("message"),
 		Type:    c.Query("type"),
 	}
+
+	// cambiar contraseña
+	user.Password = "1234567890"
 
 	c.HTML(http.StatusOK, "users/edit", gin.H{
 		"title":     "Editar Sistema",

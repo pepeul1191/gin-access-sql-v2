@@ -45,7 +45,7 @@ func (s *UserService) CreateUser(input *forms.UserCreateInput) (*domain.User, er
 	}
 
 	// Validación única
-	err := s.repo.CheckUserExistsWithError(input.Username, input.Email, 0)
+	err := s.repo.CheckUserExists(input.Username, input.Email, 0)
 	if err != nil {
 		return nil, errors.New("Usuario y/o correo en uso")
 	}
@@ -101,7 +101,12 @@ func (s *UserService) FetchUser(id uint64, user *domain.User) error {
 // UpdateUser usando el repository
 func (s *UserService) UpdateUser(user *domain.User) error {
 	if user.ID == 0 {
-		return errors.New("ID de sistema inválido")
+		return errors.New("ID de usuario inválido")
+	}
+
+	err := s.repo.CheckUserExistsForUpdate(user.Username, user.Email, user.ID)
+	if err != nil {
+		return err // Si se encuentra un error (otro rol con el mismo nombre o correo), retornarlo.
 	}
 
 	user.Updated = time.Now()

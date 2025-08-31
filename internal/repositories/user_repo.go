@@ -25,7 +25,7 @@ func (r *UserRepository) GetAll() ([]domain.User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) CheckUserExistsWithError(username, email string, excludeID uint) error {
+func (r *UserRepository) CheckUserExists(username, email string, excludeID uint) error {
 	var existingUser domain.User
 	query := r.db.Model(&domain.User{}).
 		Where("username = ? OR email = ?", username, email)
@@ -51,6 +51,37 @@ func (r *UserRepository) CheckUserExistsWithError(username, email string, exclud
 	}
 
 	return nil
+}
+
+func (r *UserRepository) CheckUserExistsForUpdate(username string, email string, id uint) error {
+	var existingUser domain.User
+
+	// La consulta busca un usuario cuyo 'username' o 'email' coincida con los valores proporcionados,
+	// pero que su 'id' sea diferente al del usuario actual.
+	query := r.db.Model(&domain.User{}).
+		Where("(username = ? OR email = ?) AND id != ?", username, email, id)
+
+	result := query.First(&existingUser)
+
+	// Si no se encuentra ningún registro, significa que los datos no están en uso por otro usuario.
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil // No se encontró un usuario con ese nombre o correo, todo bien.
+		}
+		// Se encontró un error de base de datos.
+		return result.Error
+	}
+
+	// Si el resultado no es un error, GORM encontró un registro.
+	// Esto significa que ya existe un usuario con el mismo nombre de usuario o correo.
+	if existingUser.Username == username {
+		return errors.New("El nombre de usuario ya está en uso por otro usuario.")
+	}
+	if existingUser.Email == email {
+		return errors.New("El correo electrónico ya está en uso por otro usuario.")
+	}
+
+	return errors.New("El nombre de usuario o correo electrónico ya están en uso.")
 }
 
 func (r *UserRepository) GetPaginated(page, perPage int, usernameQuery, emailQuery string, statusQuery string) ([]domain.User, int64, error) {
