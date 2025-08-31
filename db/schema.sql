@@ -112,6 +112,12 @@ BEGIN
         )
     );
 END;
+CREATE TRIGGER delete_role_permissions
+BEFORE DELETE ON roles
+FOR EACH ROW
+BEGIN
+    DELETE FROM permissions WHERE role_id = OLD.id;
+END;
 -- Dbmate schema migrations
 INSERT INTO "schema_migrations" (version) VALUES
   ('20250607174507'),
@@ -125,4 +131,6 @@ INSERT INTO "schema_migrations" (version) VALUES
   ('20250624051821'),
   ('20250802045248'),
   ('20250802045923'),
-  ('20250802050229');
+  ('20250802050229'),
+  ('20250821221530'),
+  ('20250831032948');
