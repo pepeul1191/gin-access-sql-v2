@@ -461,3 +461,85 @@ func (h *SystemHandler) handleSystemRolesPermissions(c *gin.Context, systemID ui
 		"scripts":                []string{},
 	})
 }
+
+func (h *SystemHandler) ListSystemUsersHandler(c *gin.Context) {
+	// Obtener parámetros
+	systemIdStr := c.Param("id")
+
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIdStr, 10, 32)
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems?message=%s&type=danger", url.QueryEscape("ID de sistema inválido")))
+		return
+	}
+
+	// Obtener parámetros de paginación y búsqueda
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	perPage, _ := strconv.Atoi(c.DefaultQuery("per_page", "10"))
+	usernameQuery := strings.TrimSpace(c.Query("username"))
+	emailQuery := strings.TrimSpace(c.Query("email"))
+	statusQuery := strings.TrimSpace(c.DefaultQuery("association_status", "2"))
+
+	// Validar parámetros
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 {
+		perPage = 10
+	}
+
+	// Obtener usuarios paginados
+	users, total, err := h.service.GetPaginatedSystemUsers(page, perPage, usernameQuery, emailQuery, statusQuery, systemID)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"message": "Error al obtener los usuarios",
+		})
+		return
+	}
+
+	// Calcular total de páginas
+	totalPages := int(total) / perPage
+	if int(total)%perPage > 0 {
+		totalPages++
+	}
+
+	// Calcular registros mostrados
+	startRecord := (page-1)*perPage + 1
+	endRecord := page * perPage
+	if endRecord > int(total) {
+		endRecord = int(total)
+	}
+
+	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+	styles := []string{}
+	scripts := []string{}
+
+	// mensajes por URL, si lo hubiere
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
+
+	// Renderizar vista
+	c.HTML(http.StatusOK, "systems/users", gin.H{
+		"title":         "Usuarios del Sistemas",
+		"users":         users,
+		"page":          page,
+		"perPage":       perPage,
+		"totalPages":    totalPages,
+		"totalUsers":    total,
+		"usernameQuery": usernameQuery,
+		"emailQuery":    emailQuery,
+		"statusQuery":   statusQuery,
+		"systemID":      systemID,
+		"startRecord":   startRecord,
+		"endRecord":     endRecord,
+		"globals":       globals,
+		"session":       sessionData.(middleware.SessionData),
+		"navLink":       "systems",
+		"styles":        styles,  // Pasar array de estilos
+		"scripts":       scripts, // Pasar array de scripts
+		"message":       message,
+	})
+}

@@ -285,6 +285,6 @@ func (h *UserHandler) DeleteUserHandler(c *gin.Context) {
 	}
 
 	// Éxito
-	message := "Ysuario eliminado exitosamente"
+	message := "Usuario eliminado exitosamente"
 	c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=success", url.QueryEscape(message)))
 }

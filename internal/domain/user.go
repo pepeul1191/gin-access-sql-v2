@@ -14,3 +14,11 @@ type User struct {
 	Created       time.Time `gorm:"not null" json:"created"`
 	Updated       time.Time `gorm:"not null" json:"updated"`
 }
+
+type UserSummary struct {
+	ID                uint   `gorm:"column:id" json:"id"`
+	Username          string `gorm:"column:username" json:"username"`
+	Email             string `gorm:"column:email" json:"email"`
+	Activated         bool   `gorm:"column:activated" json:"activated"`
+	AssociationStatus int    `gorm:"column:association_status" json:"association_status"`
+}

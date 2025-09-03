@@ -99,3 +99,16 @@ func (s *SystemService) UpdateSystem(system *domain.System) error {
 func (s *SystemService) DeleteSystem(id uint64) error {
 	return s.repo.Delete(id)
 }
+
+func (s *SystemService) GetPaginatedSystemUsers(page int, perPage int, usernameQuery string, emailQuery string, statusFilter string, systemID uint64) ([]domain.UserSummary, int64, error) {
+	// Validación básica
+	if page < 1 {
+		page = 1
+	}
+	if perPage < 1 {
+		perPage = 10
+	}
+
+	// Delegar al repositorio
+	return s.repo.GetPaginatedUsers(page, perPage, usernameQuery, emailQuery, statusFilter, uint(systemID))
+}

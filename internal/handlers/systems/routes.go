@@ -40,6 +40,9 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 			systemByIDGroup.POST("/roles/:role_id/permissions/:permission_id/edit", permissionHandler.EditPermissionHandler)
 			systemByIDGroup.GET("/roles/:role_id/permissions/:permission_id/edit", permissionHandler.EditPermissionHandler)
 			systemByIDGroup.GET("/roles/:role_id/permissions/:permission_id/delete", permissionHandler.DeletePermissionHandler)
+
+			//users
+			systemByIDGroup.GET("/users", handler.ListSystemUsersHandler)
 		}
 	}
 }
