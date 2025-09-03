@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"accessv2/internal/domain"
-	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -87,9 +86,9 @@ func (r *SystemRepository) GetPaginatedUsers(page, perPage int, usernameQuery, e
 		query = query.Where("users.email LIKE ?", "%"+emailQuery+"%")
 	}
 	if statusQuery != "" {
-		if statusQuery == "active" {
+		if statusQuery == "1" {
 			query = query.Where("users.activated = ?", true)
-		} else if statusQuery == "inactive" {
+		} else if statusQuery == "0" {
 			query = query.Where("users.activated = ?", false)
 		}
 	}
@@ -107,10 +106,6 @@ func (r *SystemRepository) GetPaginatedUsers(page, perPage int, usernameQuery, e
 	// Finally, apply the custom SELECT and pagination before the Find call.
 	offset := (page - 1) * perPage
 	err := query.Select(selects).Offset(offset).Limit(perPage).Find(&users).Error
-
-	fmt.Println("1 +++++++++++++++++++++++++++++++++++")
-	fmt.Println(users)
-	fmt.Println("2 +++++++++++++++++++++++++++++++++++")
 
 	return users, total, err
 }

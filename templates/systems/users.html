@@ -40,8 +40,8 @@
               <label for="status" class="form-label">Asociado al sistema</label>
               <select id="status" name="association_status" class="form-select">
                 <option value="">Todos los estados</option>
-                <option value="1" {{if eq .statusQuery "active"}}selected{{end}}>Asociado</option>
-                <option value="0" {{if eq .statusQuery "inactive"}}selected{{end}}>No Asociado</option>
+                <option value="1" {{if eq .statusQuery "1"}}selected{{end}}>Asociado</option>
+                <option value="0" {{if eq .statusQuery "0"}}selected{{end}}>No Asociado</option>
               </select>
             </div>
             <div class="col-md-3">
@@ -175,6 +175,8 @@
       </div>
     </div>
   </div>
-  
+  <script>
+    const SYSTEM_ID = {{.systemID}};
+  </script>
   {{template "dashboard_footer.html" .}}
 {{end}}

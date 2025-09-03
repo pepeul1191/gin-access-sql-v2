@@ -513,7 +513,7 @@ func (h *SystemHandler) ListSystemUsersHandler(c *gin.Context) {
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 	styles := []string{}
-	scripts := []string{}
+	scripts := []string{"js/system_users"}
 
 	// mensajes por URL, si lo hubiere
 	message := utils.Message{
