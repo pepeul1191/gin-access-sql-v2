@@ -22,10 +22,16 @@ type SystemHandler struct {
 	service           *services.SystemService
 	roleService       *services.RoleService
 	permissionService *services.PermissionService
+	systemUserService *services.SystemUserService
 }
 
-func NewSystemHandler(service *services.SystemService, roleService *services.RoleService, permissionService *services.PermissionService) *SystemHandler {
-	return &SystemHandler{service: service, roleService: roleService, permissionService: permissionService}
+func NewSystemHandler(service *services.SystemService, roleService *services.RoleService, permissionService *services.PermissionService, systemUserService *services.SystemUserService) *SystemHandler {
+	return &SystemHandler{
+		service:           service,
+		roleService:       roleService,
+		permissionService: permissionService,
+		systemUserService: systemUserService,
+	}
 }
 
 func (h *SystemHandler) ListSystems(c *gin.Context) {
@@ -514,6 +520,7 @@ func (h *SystemHandler) ListSystemUsersHandler(c *gin.Context) {
 	sessionData, _ := c.Get("sessionData")
 	styles := []string{}
 	scripts := []string{"js/system_users"}
+	csrfToken, _ := c.Get("csrf_token")
 
 	// mensajes por URL, si lo hubiere
 	message := utils.Message{
@@ -534,6 +541,7 @@ func (h *SystemHandler) ListSystemUsersHandler(c *gin.Context) {
 		"statusQuery":   statusQuery,
 		"systemID":      systemID,
 		"startRecord":   startRecord,
+		"csrfToken":     csrfToken,
 		"endRecord":     endRecord,
 		"globals":       globals,
 		"session":       sessionData.(middleware.SessionData),
@@ -542,4 +550,35 @@ func (h *SystemHandler) ListSystemUsersHandler(c *gin.Context) {
 		"scripts":       scripts, // Pasar array de scripts
 		"message":       message,
 	})
+}
+
+func (h *SystemHandler) SaveSystemUsersHandler(c *gin.Context) {
+	// Obtener parámetros
+	systemIdStr := c.Param("id")
+
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIdStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "ID de sistema inválido", "error": err.Error()})
+		return
+	}
+
+	// Leer JSON del cuerpo
+	var items []domain.SystemUserItem
+
+	if err := c.ShouldBindJSON(&items); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "No se pueden parsear los datos enviados", "error": err.Error()})
+		return
+	}
+
+	err = h.systemUserService.SaveSystemUsers(uint(systemID), items)
+	if err != nil {
+		// Si el servicio devuelve un error, se debe a un fallo interno del servidor.
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "No se pudo asociar los usuarios al sistema", "error": err.Error()})
+		return
+	}
+
+	// Si no hay error, la operación fue exitosa.
+	c.JSON(http.StatusOK, gin.H{"message": "Se asoció a los usuarios al sistema con éxito"})
+	return
 }

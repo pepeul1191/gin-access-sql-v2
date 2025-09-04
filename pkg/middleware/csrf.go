@@ -36,7 +36,7 @@ func isAjaxRequest(c *gin.Context) bool {
 // getSubmittedToken obtiene el token según el tipo de petición
 func getSubmittedToken(c *gin.Context) string {
 	// 1. Buscar en headers (para AJAX/APIs)
-	if token := c.GetHeader("X-CSRF-Token"); token != "" {
+	if token := c.GetHeader("X-CSRFToken"); token != "" {
 		return token
 	}
 

@@ -43,6 +43,7 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 
 			//users
 			systemByIDGroup.GET("/users", handler.ListSystemUsersHandler)
+			systemByIDGroup.POST("/users", handler.SaveSystemUsersHandler)
 		}
 	}
 }

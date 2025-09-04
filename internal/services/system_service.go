@@ -9,11 +9,12 @@ import (
 )
 
 type SystemService struct {
-	repo *repositories.SystemRepository
+	repo           *repositories.SystemRepository
+	systemUserRepo *repositories.SystemUserRepository
 }
 
-func NewSystemService(repo *repositories.SystemRepository) *SystemService {
-	return &SystemService{repo: repo}
+func NewSystemService(repo *repositories.SystemRepository, systemUserRepo *repositories.SystemUserRepository) *SystemService {
+	return &SystemService{repo: repo, systemUserRepo: systemUserRepo}
 }
 
 func (s *SystemService) GetAllSystems() ([]domain.System, error) {

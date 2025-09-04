@@ -1,8 +1,16 @@
+const alertDiv = document.getElementById('message');
+
+const hideAlert = () =>{
+  setTimeout(() => {
+    alertDiv.classList.add('d-none');
+  }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Checkbox para seleccionar/deseleccionar todos
   const selectAllCheckbox = document.getElementById('select-all');
   const employeeCheckboxes = document.querySelectorAll('.user-checkbox');
-  
+
   // Evento para el checkbox "Seleccionar todos"
   selectAllCheckbox.addEventListener('change', function() {
     employeeCheckboxes.forEach(checkbox => {
@@ -34,31 +42,34 @@ document.addEventListener('DOMContentLoaded', function() {
       };
     });
 
-    // Crear objeto con todos los datos a enviar
-    const formData = {
-      employees: employeesData,
-    };
 
     // Enviar datos al servidor
     fetch(`/systems/${SYSTEM_ID}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': '{{ csrf_token }}'
+        'X-CSRFToken': CSRF_TOKEN
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(employeesData)
     })
     .then(response => {
+      alertDiv.classList.remove('d-none');
       if (response.ok) {
         //window.location.reload(); // Recargar la página después de guardar
-        alert('Cambios guardados correctamente');
+        alertDiv.textContent = 'Cambios guardados correctamente';
+        alertDiv.classList.add('alert-success');
       } else {
-        alert('Error al guardar los cambios');
+        alertDiv.textContent = 'Error al guardar los cambios';
+        alertDiv.classList.add('alert-danger');
       }
+      hideAlert();
     })
     .catch(error => {
+      alertDiv.classList.remove('d-none');
+      alertDiv.classList.add('alert-danger');
+      alertDiv.textContent = 'Error al conectar con el servidor';
       console.error('Error:', error);
-      alert('Error al conectar con el servidor');
+      hideAlert();
     });
   });
 });
