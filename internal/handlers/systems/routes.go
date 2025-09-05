@@ -3,11 +3,12 @@ package systems
 import (
 	"accessv2/internal/handlers/permissions"
 	"accessv2/internal/handlers/roles"
+	"accessv2/internal/handlers/users"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler, permissionHandler *permissions.PermissionHandler) {
+func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler, permissionHandler *permissions.PermissionHandler, userHandler *users.UserHandler) {
 
 	// Main systems group
 	systemsGroup := r.Group("/systems")
@@ -44,6 +45,9 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 			//users
 			systemByIDGroup.GET("/users", handler.ListSystemUsersHandler)
 			systemByIDGroup.POST("/users", handler.SaveSystemUsersHandler)
+
+			//users roles/permissions
+			systemByIDGroup.GET("/users/:user_id", userHandler.RolesPermissionsUserHandler)
 		}
 	}
 }

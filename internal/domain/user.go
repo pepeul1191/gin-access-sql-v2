@@ -22,3 +22,27 @@ type UserSummary struct {
 	Activated         bool   `gorm:"column:activated" json:"activated"`
 	AssociationStatus int    `gorm:"column:association_status" json:"association_status"`
 }
+
+type SystemUserRolesPermissions struct {
+	UserID         uint   `json:"user_id"`
+	SystemID       uint   `json:"system_id"`
+	PermissionID   uint   `json:"permission_id"`
+	PermissionName string `json:"permission_name"`
+	RoleID         uint   `json:"role_id"`
+	RoleName       string `json:"role_name"`
+	IsAssigned     bool   `json:"is_assigned"`
+}
+
+// Permission represents a permission within a role.
+type UserPermission struct {
+	ID         uint   `json:"id"`
+	Name       string `json:"name"`
+	IsAssigned bool   `json:"is_assigned"`
+}
+
+// RoleWithPermissions represents a role and its associated permissions.
+type RoleWithPermissions struct {
+	ID          uint             `json:"id"`
+	Name        string           `json:"name"`
+	Permissions []UserPermission `json:"permissions"`
+}

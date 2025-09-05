@@ -288,3 +288,50 @@ func (h *UserHandler) DeleteUserHandler(c *gin.Context) {
 	message := "Usuario eliminado exitosamente"
 	c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=success", url.QueryEscape(message)))
 }
+
+func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
+	// Recuperar los parámetros de la URL (systemID y userID)
+	systemIDStr := c.Param("id")
+	userIDStr := c.Param("user_id")
+
+	// Convertir los IDs a uint64
+	systemID, err := strconv.ParseUint(systemIDStr, 10, 64)
+	if err != nil {
+		// Redirigir con un mensaje de error
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("ID de sistema inválido")))
+		return
+	}
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		// Redirigir con un mensaje de error
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("ID de usuario inválido")))
+		return
+	}
+
+	// Obtener los permisos seleccionados del formulario (parámetros de tipo checkbox)
+	permissions := c.PostFormMap("permissions")
+
+	// Convertir los valores de los permisos seleccionados a enteros (IDs)
+	var permissionIDs []uint64
+	for permIDStr := range permissions {
+		permID, err := strconv.ParseUint(permIDStr, 10, 64)
+		if err != nil {
+			// Redirigir con un mensaje de error
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("Error al procesar los permisos")))
+			return
+		}
+		permissionIDs = append(permissionIDs, permID)
+	}
+
+	// Llamar a un servicio o repositorio para asociar los permisos al usuario
+	err = h.service.AssociatePermissions(systemID, userID, permissionIDs)
+	if err != nil {
+		// Redirigir con un mensaje de error
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("Error al asociar los permisos")))
+		return
+	}
+
+	// Redirigir al usuario de vuelta con un mensaje de éxito
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=success", systemID, userIDStr, url.QueryEscape("Permisos actualizados con éxito")))
+}

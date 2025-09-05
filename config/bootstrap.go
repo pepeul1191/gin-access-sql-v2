@@ -81,7 +81,7 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	// Registrar rutas
 	common.RegisterCommonRoutes(router, commonHandler)
 	auth.RegisterAuthRoutes(router, authHandler)
-	systems.RegisterSystemsRoutes(router, systemHandler, roleHandler, permissionHandler)
+	systems.RegisterSystemsRoutes(router, systemHandler, roleHandler, permissionHandler, userHandler)
 	users.RegisterUserRoutes(router, userHandler)
 
 	return router

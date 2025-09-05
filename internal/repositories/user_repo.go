@@ -139,3 +139,40 @@ func (r *UserRepository) Update(user *domain.User) error {
 func (r *UserRepository) Delete(id uint64) error {
 	return r.db.Delete(&domain.User{}, id).Error
 }
+
+func (r *UserRepository) GetSystemUserRolesPermissions(systemID, userID uint64) ([]domain.SystemUserRolesPermissions, error) {
+	var permissions []domain.SystemUserRolesPermissions
+
+	query := `
+		SELECT
+			su.user_id,
+			su.system_id,
+			p.id AS permission_id,
+			p.name AS permission_name,
+			r.id AS role_id,
+			r.name AS role_name,
+			CASE
+				WHEN sup.id IS NOT NULL THEN 1
+				ELSE 0
+			END AS is_assigned
+		FROM systems_users su
+		JOIN roles r ON r.system_id = su.system_id
+		JOIN permissions p ON p.role_id = r.id
+		LEFT JOIN systems_users_permissions sup
+			ON sup.system_id = su.system_id
+			AND sup.user_id = su.user_id
+			AND sup.permission_id = p.id
+		WHERE su.system_id = ? AND su.user_id = ?;
+	`
+
+	result := r.db.Raw(query, systemID, userID).Scan(&permissions)
+
+	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return nil, nil // Return nil slice if no records are found
+		}
+		return nil, result.Error
+	}
+
+	return permissions, nil
+}
