@@ -19,11 +19,12 @@ import (
 )
 
 type UserHandler struct {
-	service *services.UserService
+	service               *services.UserService
+	userPermissionService *services.UserPermissionService
 }
 
-func NewUserHandler(service *services.UserService) *UserHandler {
-	return &UserHandler{service: service}
+func NewUserHandler(service *services.UserService, userPermissionService *services.UserPermissionService) *UserHandler {
+	return &UserHandler{service: service, userPermissionService: userPermissionService}
 }
 
 func (h *UserHandler) ListUsers(c *gin.Context) {
@@ -289,6 +290,61 @@ func (h *UserHandler) DeleteUserHandler(c *gin.Context) {
 	c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=success", url.QueryEscape(message)))
 }
 
+func (h *UserHandler) GetUserRolesAndPermissions(c *gin.Context) {
+	// Obtener parámetros
+	userIDStr := c.Param("user_id")
+	systemIDStr := c.Param("id")
+
+	// Convertir el ID del sistema
+	systemID, err := strconv.ParseUint(systemIDStr, 10, 32)
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape("ID de sistema inválido")))
+		return
+	}
+
+	// Convertir el ID del usuario
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape("ID de usuario inválido")))
+		return
+	}
+
+	// Obtener las relaciones de roles y permisos
+	permissions, err := h.userPermissionService.GetUserRolesAndPermissions(systemID, userID)
+	if err != nil {
+		// Aquí puedes manejar el error de forma más específica si es necesario,
+		// por ejemplo, c.Status(http.StatusInternalServerError).
+		return
+	}
+
+	globals, _ := c.Get("globals")
+	sessionData, _ := c.Get("sessionData")
+	styles := []string{}
+	scripts := []string{}
+	csrfToken, _ := c.Get("csrf_token")
+
+	// mensajes por URL, si lo hubiere
+	message := utils.Message{
+		Content: c.Query("message"),
+		Type:    c.Query("type"),
+	}
+
+	// Renderizar vista
+	c.HTML(http.StatusOK, "users/roles-permissions", gin.H{
+		"title":       "Permisos de los Roles del Usuario",
+		"systemID":    systemID,
+		"userID":      userID,
+		"permissions": permissions,
+		"csrfToken":   csrfToken,
+		"globals":     globals,
+		"session":     sessionData.(middleware.SessionData),
+		"navLink":     "systems",
+		"styles":      styles,  // Pasar array de estilos
+		"scripts":     scripts, // Pasar array de scripts
+		"message":     message,
+	})
+}
+
 func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	// Recuperar los parámetros de la URL (systemID y userID)
 	systemIDStr := c.Param("id")
@@ -298,14 +354,14 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	systemID, err := strconv.ParseUint(systemIDStr, 10, 64)
 	if err != nil {
 		// Redirigir con un mensaje de error
-		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("ID de sistema inválido")))
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/?message=%s&type=danger", url.QueryEscape("ID de sistema inválido")))
 		return
 	}
 
 	userID, err := strconv.ParseUint(userIDStr, 10, 64)
 	if err != nil {
 		// Redirigir con un mensaje de error
-		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("ID de usuario inválido")))
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users?message=%s&type=danger", systemID, url.QueryEscape("ID de usuario inválido")))
 		return
 	}
 
@@ -318,20 +374,20 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 		permID, err := strconv.ParseUint(permIDStr, 10, 64)
 		if err != nil {
 			// Redirigir con un mensaje de error
-			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("Error al procesar los permisos")))
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userID, url.QueryEscape("Error al procesar los permisos")))
 			return
 		}
 		permissionIDs = append(permissionIDs, permID)
 	}
 
 	// Llamar a un servicio o repositorio para asociar los permisos al usuario
-	err = h.service.AssociatePermissions(systemID, userID, permissionIDs)
+	err = h.userPermissionService.AssociatePermissions(uint(systemID), uint(userID), permissionIDs)
 	if err != nil {
 		// Redirigir con un mensaje de error
-		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userIDStr, url.QueryEscape("Error al asociar los permisos")))
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userID, url.QueryEscape("Error al asociar los permisos")))
 		return
 	}
 
 	// Redirigir al usuario de vuelta con un mensaje de éxito
-	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=success", systemID, userIDStr, url.QueryEscape("Permisos actualizados con éxito")))
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=success", systemID, userID, url.QueryEscape("Permisos actualizados con éxito")))
 }

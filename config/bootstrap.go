@@ -1,4 +1,3 @@
-// config/bootstrap.go
 package config
 
 import (
@@ -61,11 +60,13 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	roleRepo := repositories.NewRoleRepository(db)
 	permissionRepo := repositories.NewPermissionRepository(db)
 	userSystemRepo := repositories.NewSystemUserRepository(db)
+	userPermissionRepo := repositories.NewUserPermissionRepository(db)
 
 	// Inicialización de servicios
 	authService := services.NewAuthService()
 	systemService := services.NewSystemService(systemRepo, userSystemRepo)
 	permissionService := services.NewPermissionService(permissionRepo)
+	userPermissionService := services.NewUserPermissionService(userPermissionRepo)
 	userService := services.NewUserService(userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	systemUserService := services.NewSystemUserService(db, userSystemRepo)
@@ -74,7 +75,7 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	commonHandler := common.NewCommonHandler()
 	authHandler := auth.NewAuthHandler(authService)
 	systemHandler := systems.NewSystemHandler(systemService, roleService, permissionService, systemUserService)
-	userHandler := users.NewUserHandler(userService)
+	userHandler := users.NewUserHandler(userService, userPermissionService)
 	roleHandler := roles.NewRoleHandler(roleService)
 	permissionHandler := permissions.NewPermissionHandler(permissionService)
 

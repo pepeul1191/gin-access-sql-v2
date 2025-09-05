@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// He añadido 'userHandler' a los parámetros de la función.
 func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler, permissionHandler *permissions.PermissionHandler, userHandler *users.UserHandler) {
 
 	// Main systems group
@@ -47,7 +48,8 @@ func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *r
 			systemByIDGroup.POST("/users", handler.SaveSystemUsersHandler)
 
 			//users roles/permissions
-			systemByIDGroup.GET("/users/:user_id", userHandler.RolesPermissionsUserHandler)
+			systemByIDGroup.GET("/users/:user_id", userHandler.GetUserRolesAndPermissions)
+			systemByIDGroup.POST("/users/:user_id/permissions", userHandler.AssociatePermissionsHandler)
 		}
 	}
 }

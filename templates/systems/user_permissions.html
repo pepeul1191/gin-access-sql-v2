@@ -27,6 +27,7 @@
             </div>
             <div class="card-body" style="padding-top: 0px;">
               <form method="POST" action="/systems/{{$.systemID}}/users/{{$.userID}}/permissions">
+                <input type="hidden" name="_csrf" value="{{$.csrfToken}}">
                 <div class="row d-flex justify-content-between align-items-center">
                   <div class="col-md-8">
                     <!-- El texto a la izquierda -->
