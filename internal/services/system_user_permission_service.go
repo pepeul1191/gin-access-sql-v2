@@ -54,9 +54,9 @@ func (s *UserPermissionService) GetUserRolesAndPermissions(systemID uint64, user
 	return result, nil
 }
 
-func (s *UserPermissionService) AssociatePermissions(systemID uint, userID uint, permissionIDs []uint64) error {
+func (s *UserPermissionService) AssociatePermissions(systemID uint, userID uint, roleID uint, permissionIDs []uint64) error {
 	// Eliminar los permisos previos que no están en la lista de permisos seleccionados
-	if err := s.repo.DeletePermissions(systemID, userID, permissionIDs); err != nil {
+	if err := s.repo.DeletePermissions(systemID, userID, roleID); err != nil {
 		return err
 	}
 

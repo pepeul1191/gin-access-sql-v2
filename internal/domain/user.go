@@ -44,5 +44,6 @@ type UserPermission struct {
 type RoleWithPermissions struct {
 	ID          uint             `json:"id"`
 	Name        string           `json:"name"`
+	RoleID      string           `json:"role_id"`
 	Permissions []UserPermission `json:"permissions"`
 }

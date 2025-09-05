@@ -349,6 +349,7 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	// Recuperar los parámetros de la URL (systemID y userID)
 	systemIDStr := c.Param("id")
 	userIDStr := c.Param("user_id")
+	roleIDStr := c.PostForm("role_id")
 
 	// Convertir los IDs a uint64
 	systemID, err := strconv.ParseUint(systemIDStr, 10, 64)
@@ -362,6 +363,12 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	if err != nil {
 		// Redirigir con un mensaje de error
 		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users?message=%s&type=danger", systemID, url.QueryEscape("ID de usuario inválido")))
+		return
+	}
+
+	roleID, err := strconv.ParseUint(roleIDStr, 10, 64)
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users?message=%s&type=danger", systemID, url.QueryEscape("ID de rol inválido")))
 		return
 	}
 
@@ -381,7 +388,7 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	}
 
 	// Llamar a un servicio o repositorio para asociar los permisos al usuario
-	err = h.userPermissionService.AssociatePermissions(uint(systemID), uint(userID), permissionIDs)
+	err = h.userPermissionService.AssociatePermissions(uint(systemID), uint(userID), uint(roleID), permissionIDs)
 	if err != nil {
 		// Redirigir con un mensaje de error
 		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userID, url.QueryEscape("Error al asociar los permisos")))

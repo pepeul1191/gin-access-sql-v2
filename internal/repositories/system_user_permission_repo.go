@@ -33,14 +33,26 @@ func (r *UserPermissionRepository) InsertPermissions(permissions []domain.System
 	return nil
 }
 
-// Eliminar permisos previos para un usuario en el sistema que no estén en la lista
-func (r *UserPermissionRepository) DeletePermissions(systemID, userID uint, permissionIDs []uint64) error {
-	// Eliminar permisos que no están en la lista de permisos seleccionados
-	if err := r.db.Where("system_id = ? AND user_id = ? AND permission_id NOT IN (?)", systemID, userID, permissionIDs).Delete(&domain.SystemUserPermission{}).Error; err != nil {
+func (r *UserPermissionRepository) DeletePermissions(systemID, userID, roleID uint) error {
+	// Step 1: Create a subquery to select all permission IDs belonging to the specified role.
+	// We use `Model` to specify the table and `Select("id")` to get only the IDs.
+	subQuery := r.db.Model(&domain.Permission{}).Select("id").Where("role_id = ?", roleID)
+
+	// Step 2: Delete records from the systems_users_permissions table.
+	// We use the subquery in the `IN` clause to target only the permissions from the specified role.
+	// The `system_id` and `user_id` are included for safety and precision.
+	if err := r.db.Where(
+		"system_id = ? AND user_id = ? AND permission_id IN (?)",
+		systemID,
+		userID,
+		subQuery,
+	).Delete(&domain.SystemUserPermission{}).Error; err != nil {
 		return err
 	}
+
 	return nil
 }
+
 func (r *UserPermissionRepository) GetSystemUserRolesPermissions(systemID, userID uint64) ([]domain.SystemUserRolesPermissions, error) {
 
 	var permissions []domain.SystemUserRolesPermissions
