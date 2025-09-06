@@ -4,6 +4,7 @@ import (
 	"accessv2/internal/handlers/permissions"
 	"accessv2/internal/handlers/roles"
 	"accessv2/internal/handlers/users"
+	"accessv2/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,7 +13,7 @@ import (
 func RegisterSystemsRoutes(r *gin.Engine, handler *SystemHandler, roleHandler *roles.RoleHandler, permissionHandler *permissions.PermissionHandler, userHandler *users.UserHandler) {
 
 	// Main systems group
-	systemsGroup := r.Group("/systems")
+	systemsGroup := r.Group("/systems", middleware.AuthRequired())
 	{
 		// Routes for listing and creating systems
 		systemsGroup.GET("/", handler.ListSystems)

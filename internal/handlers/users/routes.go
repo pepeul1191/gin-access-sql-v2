@@ -1,15 +1,20 @@
 package users
 
 import (
+	"accessv2/pkg/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
 func RegisterUserRoutes(r *gin.Engine, handler *UserHandler) {
 
-	r.GET("/users", handler.ListUsers)
-	r.POST("/users/create", handler.CreateUserHandler)
-	r.GET("/users/create", handler.CreateUserHandler)
-	r.POST("/users/:id/edit", handler.EditUserHandler)
-	r.GET("/users/:id/edit", handler.EditUserHandler)
-	r.GET("/users/:id/delete", handler.DeleteUserHandler)
+	usersGroup := r.Group("/users", middleware.AuthRequired())
+	{
+		usersGroup.GET("/", handler.ListUsers)
+		usersGroup.POST("/create", handler.CreateUserHandler)
+		usersGroup.GET("/create", handler.CreateUserHandler)
+		usersGroup.POST("/:id/edit", handler.EditUserHandler)
+		usersGroup.GET("/:id/edit", handler.EditUserHandler)
+		usersGroup.GET("/:id/delete", handler.DeleteUserHandler)
+	}
 }
