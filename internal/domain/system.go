@@ -9,6 +9,7 @@ type System struct {
 	Repository  string    `gorm:"size:100" json:"repository"`
 	Created     time.Time `gorm:"not null" json:"created"`
 	Updated     time.Time `gorm:"not null" json:"updated"`
+	Roles       []*Role   `json:"roles"`
 }
 
 func (System) TableName() string {

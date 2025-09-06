@@ -238,19 +238,28 @@ func (h *UserHandler) handleEditUserGet(c *gin.Context, userID uint64) {
 		Type:    c.Query("type"),
 	}
 
+	var systemRolesPermissions []domain.System
+	systemRolesPermissions, err := h.userPermissionService.GetAllUserPermissions(uint(userID))
+	if err != nil {
+		c.Redirect(http.StatusFound, fmt.Sprintf("/users?message=%s&type=danger", url.QueryEscape("Error al buscar los permisos en los sistema")))
+		return
+	}
+
+	fmt.Println(systemRolesPermissions)
 	// cambiar contraseña
 	user.Password = "1234567890"
 
 	c.HTML(http.StatusOK, "users/edit", gin.H{
-		"title":     "Editar Sistema",
-		"csrfToken": csrfToken,
-		"globals":   globals,
-		"user":      user,
-		"session":   sessionData.(middleware.SessionData),
-		"navLink":   "users",
-		"message":   message,
-		"styles":    []string{},
-		"scripts":   []string{},
+		"title":                  "Editar Sistema",
+		"csrfToken":              csrfToken,
+		"globals":                globals,
+		"user":                   user,
+		"session":                sessionData.(middleware.SessionData),
+		"navLink":                "users",
+		"message":                message,
+		"systemRolesPermissions": systemRolesPermissions,
+		"styles":                 []string{},
+		"scripts":                []string{},
 	})
 }
 
@@ -312,8 +321,7 @@ func (h *UserHandler) GetUserRolesAndPermissions(c *gin.Context) {
 	// Obtener las relaciones de roles y permisos
 	permissions, err := h.userPermissionService.GetUserRolesAndPermissions(systemID, userID)
 	if err != nil {
-		// Aquí puedes manejar el error de forma más específica si es necesario,
-		// por ejemplo, c.Status(http.StatusInternalServerError).
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users?message=%s&type=danger", systemID, url.QueryEscape("No hay permisos y roles asignados al sistema")))
 		return
 	}
 

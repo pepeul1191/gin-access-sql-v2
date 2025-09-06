@@ -13,3 +13,12 @@ type SystemUserPermission struct {
 func (SystemUserPermission) TableName() string {
 	return "systems_users_permissions"
 }
+
+type UserSystemPermission struct {
+	SystemID       uint64 `json:"-"`
+	SystemName     string `json:"-"`
+	RoleID         uint64 `json:"-"`
+	RoleName       string `json:"-"`
+	PermissionID   uint64 `json:"-"`
+	PermissionName string `json:"-"`
+}

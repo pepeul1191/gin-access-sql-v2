@@ -121,7 +121,7 @@
                   </div>
                 </td>
                 <td class="text-end btn-group-sm">
-                  <a href="/systems/{{$.systemID}}/users/{{.ID}}" class="btn btn-outline-primary">
+                  <a href="/systems/{{$.systemID}}/users/{{.ID}}" {{if not .AssociationStatus}}onclick="return false;" style="color: gray; pointer-events: none;"{{end}} class="btn btn-outline-primary">
                     <i class="fa fa-list"></i> Gestionar Accesos
                   </a>
                 </td>

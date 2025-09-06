@@ -78,3 +78,7 @@ func (s *UserPermissionService) AssociatePermissions(systemID uint, userID uint,
 
 	return nil
 }
+
+func (s *UserPermissionService) GetAllUserPermissions(userID uint) ([]domain.System, error) {
+	return s.repo.GetUserNestedPermissions(userID)
+}

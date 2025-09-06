@@ -91,6 +91,48 @@
         </h6>
       </div>
       <div class="card-body">
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>Sistema</th>
+              <th>Rol</th>
+              <th>Permisos</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{range .systemRolesPermissions}}
+              {{ $system := . }}
+              {{ $isFirstRole := true }}
+              {{ $systemRolesCount := len $system.Roles }}
+              {{range $index, $role := $system.Roles}}
+              <tr>
+                {{if $isFirstRole}}
+                <td rowspan="{{$systemRolesCount}}">{{$system.Name}}</td>
+                {{ $isFirstRole = false }}
+                {{end}}
+                <td><em>{{$role.Name}}</em></td>
+                <td>
+                  <ul class="list-unstyled mb-0">
+                    {{range $index, $permission := $role.Permissions}}
+                      {{$permission.Name}}{{if not (eq (add $index 1) (len $role.Permissions))}},{{end}}
+                    {{end}}
+                  </ul>
+                </td>
+                <td>
+                  <a href="/systems/{{$system.ID}}/users/{{$.user.ID}}?origin=users" class="btn btn-outline-secondary me-1">
+                    <i class="fa fa-edit"></i> Editar Permisos
+                  </a>
+                </td>
+              </tr>
+              {{end}}
+            {{else}}
+            <tr>
+              <td colspan="3" class="text-center">No hay permisos asignados para este usuario en ningún sistema.</td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

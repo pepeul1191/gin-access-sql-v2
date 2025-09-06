@@ -1,11 +1,3 @@
-const alertDiv = document.getElementById('message');
-
-const hideAlert = () =>{
-  setTimeout(() => {
-    alertDiv.classList.add('d-none');
-  }, 5000);
-}
-
 document.addEventListener('DOMContentLoaded', function() {
   // Checkbox para seleccionar/deseleccionar todos
   const selectAllCheckbox = document.getElementById('select-all');
@@ -53,23 +45,16 @@ document.addEventListener('DOMContentLoaded', function() {
       body: JSON.stringify(employeesData)
     })
     .then(response => {
-      alertDiv.classList.remove('d-none');
       if (response.ok) {
         //window.location.reload(); // Recargar la página después de guardar
-        alertDiv.textContent = 'Cambios guardados correctamente';
-        alertDiv.classList.add('alert-success');
+        window.location.href = `/systems/${SYSTEM_ID}/users?message=Cambios%20guardados%20correctamente&type=success`
       } else {
-        alertDiv.textContent = 'Error al guardar los cambios';
-        alertDiv.classList.add('alert-danger');
+        window.location.href = `/systems/${SYSTEM_ID}/users?message=Error%20al%20guardar%20los%20cambios&type=danger`
       }
-      hideAlert();
     })
     .catch(error => {
-      alertDiv.classList.remove('d-none');
-      alertDiv.classList.add('alert-danger');
-      alertDiv.textContent = 'Error al conectar con el servidor';
+      window.location.href = `/systems/${SYSTEM_ID}/users?message=Error%20al%20conectar%20con%20el%20servidor&type=danger`
       console.error('Error:', error);
-      hideAlert();
     });
   });
 });
