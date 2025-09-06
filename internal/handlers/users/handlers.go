@@ -303,6 +303,7 @@ func (h *UserHandler) GetUserRolesAndPermissions(c *gin.Context) {
 	// Obtener parámetros
 	userIDStr := c.Param("user_id")
 	systemIDStr := c.Param("id")
+	origin := c.Query("origin")
 
 	// Convertir el ID del sistema
 	systemID, err := strconv.ParseUint(systemIDStr, 10, 32)
@@ -325,6 +326,12 @@ func (h *UserHandler) GetUserRolesAndPermissions(c *gin.Context) {
 		return
 	}
 
+	// origin
+	navLink := "systems"
+	if origin != "" {
+		navLink = "users"
+	}
+
 	globals, _ := c.Get("globals")
 	sessionData, _ := c.Get("sessionData")
 	styles := []string{}
@@ -345,8 +352,9 @@ func (h *UserHandler) GetUserRolesAndPermissions(c *gin.Context) {
 		"permissions": permissions,
 		"csrfToken":   csrfToken,
 		"globals":     globals,
+		"origin":      origin,
 		"session":     sessionData.(middleware.SessionData),
-		"navLink":     "systems",
+		"navLink":     navLink,
 		"styles":      styles,  // Pasar array de estilos
 		"scripts":     scripts, // Pasar array de scripts
 		"message":     message,
@@ -358,6 +366,7 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	systemIDStr := c.Param("id")
 	userIDStr := c.Param("user_id")
 	roleIDStr := c.PostForm("role_id")
+	origin := c.Query("origin")
 
 	// Convertir los IDs a uint64
 	systemID, err := strconv.ParseUint(systemIDStr, 10, 64)
@@ -383,13 +392,12 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	// Obtener los permisos seleccionados del formulario (parámetros de tipo checkbox)
 	permissions := c.PostFormMap("permissions")
 
-	// Convertir los valores de los permisos seleccionados a enteros (IDs)
 	var permissionIDs []uint64
 	for permIDStr := range permissions {
 		permID, err := strconv.ParseUint(permIDStr, 10, 64)
 		if err != nil {
-			// Redirigir con un mensaje de error
-			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userID, url.QueryEscape("Error al procesar los permisos")))
+			// Redirigir a la URL base con un mensaje de error y el origen
+			c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?origin=%s&message=%s&type=danger", systemID, userID, origin, url.QueryEscape("Error al procesar los permisos")))
 			return
 		}
 		permissionIDs = append(permissionIDs, permID)
@@ -398,11 +406,11 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 	// Llamar a un servicio o repositorio para asociar los permisos al usuario
 	err = h.userPermissionService.AssociatePermissions(uint(systemID), uint(userID), uint(roleID), permissionIDs)
 	if err != nil {
-		// Redirigir con un mensaje de error
-		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=danger", systemID, userID, url.QueryEscape("Error al asociar los permisos")))
+		// Redirigir a la URL base con un mensaje de error y el origen
+		c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?origin=%s&message=%s&type=danger", systemID, userID, origin, url.QueryEscape("Error al asociar los permisos")))
 		return
 	}
 
 	// Redirigir al usuario de vuelta con un mensaje de éxito
-	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?message=%s&type=success", systemID, userID, url.QueryEscape("Permisos actualizados con éxito")))
+	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?origin=%s&message=%s&type=success", systemID, userID, origin, url.QueryEscape("Permisos actualizados con éxito")))
 }

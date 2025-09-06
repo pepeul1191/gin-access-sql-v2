@@ -3,8 +3,13 @@
 
   <div class="container-fluid py-4">
     <h3 class="mb-4">
-      <a class="return-nav" href="/systems"><i class="fa fa-cogs me-2"></i>Gestión de Sistemas</a>
-      / <a class="return-nav" href="/systems/{{.systemID}}/users">Editar Sistema</a> / Asociar Permisos
+      {{if eq .origin "users"}}
+        <a class="return-nav" href="/users"><i class="fa fa-users me-2"></i>Gestión de Usuarios</a>
+        / <a class="return-nav" href="/users/{{.userID}}/edit">Editar Usuario</a> / Roles y Permisos
+      {{else}}
+        <a class="return-nav" href="/systems"><i class="fa fa-cogs me-2"></i>Gestión de Sistemas</a>
+        / <a class="return-nav" href="/systems/{{.systemID}}/users">Editar Sistema</a> / Asociar Permisos
+      {{end}}
     </h3>
 
     {{if .message.Type}}
@@ -26,7 +31,11 @@
               </h6>
             </div>
             <div class="card-body" style="padding-top: 0px;">
-              <form method="POST" action="/systems/{{$.systemID}}/users/{{$.userID}}/permissions">
+              {{if eq $.origin "users"}}
+                <form method="POST" action="/systems/{{$.systemID}}/users/{{$.userID}}/permissions?origin=users">
+              {{else}}
+                <form method="POST" action="/systems/{{$.systemID}}/users/{{$.userID}}/permissions">
+              {{end}}
                 <input type="hidden" name="_csrf" value="{{$.csrfToken}}">
                 <input type="hidden" name="role_id" value="{{.ID}}">
                 <div class="row d-flex justify-content-between align-items-center">
