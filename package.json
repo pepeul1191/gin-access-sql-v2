@@ -9,8 +9,8 @@
     "db:rollback": "npx dbmate -d \"db/migrations\" -e \"DB\" rollback",
     "db:dump": "npx dbmate -d \"db/migrations\" -e \"DB\" dump ",
     "dev:rollup": "rollup -c -w",
-    "dev:gin": "nodemon --ext go --watch . --legacy-watch --exec \"go run main.go\" || exit 1",
-    "dev": "concurrently -p \"[{name}]\" -n \"ROLLUP,GIN\" -c \"bgRed.bold,bgBlue.bold\" \"npm run dev:rollup\" \"npm run dev:gin\"",
+    "dev:gin": "air -c air.toml",
+    "dev": "concurrently -p \"[{name}]\" -n \"ACCESS-ROLLUP,ACCESS-GIN\" -c \"bgRed.bold,bgBlue.bold\" \"npm run dev:rollup\" \"npm run dev:gin\"",
     "build": "rollup -c",
     "start": "go run main.go"
   },

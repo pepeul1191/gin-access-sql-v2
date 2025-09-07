@@ -169,3 +169,7 @@ project/
 Diagrama de clases
 
 ![Diagrama UML](./docs/pics/class_diagram.png)
+
+## Hotreload
+
+    $ go install github.com/air-verse/air@latest
