@@ -4,17 +4,25 @@ import (
 	"accessv2/internal/domain"
 	"accessv2/internal/forms"
 	"accessv2/internal/repositories"
+	"accessv2/internal/responses"
+
 	"accessv2/pkg/utils"
 	"errors"
+	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type UserService struct {
 	repo *repositories.UserRepository
+	db   *gorm.DB
 }
 
-func NewUserService(repo *repositories.UserRepository) *UserService {
-	return &UserService{repo: repo}
+func NewUserService(db *gorm.DB, repo *repositories.UserRepository) *UserService {
+	return &UserService{
+		db:   db,
+		repo: repo}
 }
 
 func (s *UserService) GetAllUsers() ([]domain.User, error) {
@@ -116,4 +124,35 @@ func (s *UserService) UpdateUser(user *domain.User) error {
 // DeleteSystem usando el repository
 func (s *UserService) DeleteUser(id uint64) error {
 	return s.repo.Delete(id)
+}
+
+func (s *UserService) ValidateBySystemUsernamePassword(systemID uint64, username, password string) (responses.UserWithAccess, error) {
+	user, err := s.repo.GetBySystemUsernamePassword(systemID, username, password)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return responses.UserWithAccess{}, errors.New("Usuario y/o contraseña incorrectos")
+		}
+		return responses.UserWithAccess{}, fmt.Errorf("Error al validar usuario: %w", err)
+	}
+
+	if user.Activated == false {
+		return responses.UserWithAccess{}, errors.New("Usuario no activo")
+	}
+
+	access, err := s.repo.GetUserNestedPermissionsBySystem(user.ID, systemID)
+	if err != nil {
+		return responses.UserWithAccess{}, err
+	}
+
+	userWithAccess := responses.UserWithAccess{
+		User: responses.UserAccess{
+			ID:       user.ID,
+			Username: user.Username,
+			Email:    user.Email,
+			// Puedes incluir otros campos si los necesitas
+		},
+		Access: access,
+	}
+
+	return userWithAccess, nil
 }

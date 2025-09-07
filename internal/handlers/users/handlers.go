@@ -3,6 +3,7 @@ package users
 import (
 	"accessv2/internal/domain"
 	"accessv2/internal/forms"
+	"accessv2/internal/responses"
 	"accessv2/internal/services"
 
 	"accessv2/pkg/middleware"
@@ -417,8 +418,76 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 }
 
 func (h *UserHandler) APISignInHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Vamos bien",
-		"data":    "prueba"})
-	return
+	var loginReq forms.SignInRequest
+
+	// Bind JSON request
+	if err := c.ShouldBindJSON(&loginReq); err != nil {
+		c.JSON(http.StatusBadRequest, responses.SignResponse{
+			Success: false,
+			Error:   "Datos de entrada inválidos: " + err.Error(),
+		})
+		return
+	}
+
+	// Validar campos requeridos
+	if loginReq.SystemID == 0 {
+		c.JSON(http.StatusBadRequest, responses.SignResponse{
+			Success: false,
+			Error:   "system_id es requerido",
+		})
+		return
+	}
+
+	if strings.TrimSpace(loginReq.Username) == "" {
+		c.JSON(http.StatusBadRequest, responses.SignResponse{
+			Success: false,
+			Error:   "username es requerido",
+		})
+		return
+	}
+
+	if strings.TrimSpace(loginReq.Password) == "" {
+		c.JSON(http.StatusBadRequest, responses.SignResponse{
+			Success: false,
+			Error:   "password es requerido",
+		})
+		return
+	}
+
+	// Llamar al servicio
+	userWithAccess, err := h.service.ValidateBySystemUsernamePassword(
+		loginReq.SystemID,
+		loginReq.Username,
+		loginReq.Password,
+	)
+
+	// Manejar errores
+	if err != nil {
+		statusCode := http.StatusInternalServerError
+		errorMsg := err.Error()
+
+		// Determinar el código de estado apropiado
+		if errors.Is(err, gorm.ErrRecordNotFound) ||
+			strings.Contains(err.Error(), "credenciales inválidas") ||
+			strings.Contains(err.Error(), "no encontrado") {
+			statusCode = http.StatusUnauthorized
+			errorMsg = "Credenciales inválidas"
+		} else if strings.Contains(err.Error(), "no activo") {
+			statusCode = http.StatusForbidden
+			errorMsg = "Usuario no activo"
+		}
+
+		c.JSON(statusCode, responses.SignResponse{
+			Success: false,
+			Error:   errorMsg,
+		})
+		return
+	}
+
+	// Respuesta exitosa
+	c.JSON(http.StatusOK, responses.SignResponse{
+		Success: true,
+		Message: "Autenticación exitosa",
+		Data:    userWithAccess,
+	})
 }

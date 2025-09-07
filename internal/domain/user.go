@@ -1,7 +1,9 @@
 // internal/domain/user.go
 package domain
 
-import "time"
+import (
+	"time"
+)
 
 type User struct {
 	ID            uint      `gorm:"primaryKey;autoIncrement" json:"id"`

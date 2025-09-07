@@ -18,7 +18,7 @@ func RegisterUserRoutes(r *gin.Engine, handler *UserHandler) {
 		usersGroup.GET("/:id/delete", handler.DeleteUserHandler)
 	}
 	// auth
-	authGroup := r.Group("/api/v1", middleware.XAuthTriggerRequired())
+	authGroup := r.Group("/api/v1/users", middleware.XAuthTriggerRequired())
 	{
 		authGroup.POST("/sign-in/by-username", handler.APISignInHandler)
 	}

@@ -3,6 +3,7 @@ package repositories
 
 import (
 	"accessv2/internal/domain"
+	"accessv2/internal/responses"
 	"errors"
 
 	"gorm.io/gorm"
@@ -138,4 +139,79 @@ func (r *UserRepository) Update(user *domain.User) error {
 
 func (r *UserRepository) Delete(id uint64) error {
 	return r.db.Delete(&domain.User{}, id).Error
+}
+
+func (r *UserRepository) GetBySystemUsernamePassword(systemID uint64, username, password string) (domain.User, error) {
+	var user domain.User
+
+	result := r.db.
+		Joins("JOIN systems_users ON systems_users.user_id = users.id").
+		Where("systems_users.system_id = ? AND users.username = ? AND users.password = ?", systemID, username, password).
+		First(&user)
+
+	if result.Error != nil {
+		return domain.User{}, result.Error
+	}
+
+	return user, nil
+}
+
+func (r *UserRepository) GetUserNestedPermissionsBySystem(userID uint, systemID uint64) (responses.SystemAccess, error) {
+	var flatPermissions []domain.UserSystemPermission
+
+	query := `
+        SELECT
+            S.id AS system_id,
+            S.name AS system_name,
+            R.id AS role_id,
+            R.name AS role_name,
+            P.id AS permission_id,
+            P.name AS permission_name
+        FROM systems_users_permissions AS SUP
+        INNER JOIN users AS U ON SUP.user_id = U.id
+        INNER JOIN permissions AS P ON SUP.permission_id = P.id
+        INNER JOIN roles AS R ON P.role_id = R.id
+        INNER JOIN systems AS S ON R.system_id = S.id
+        WHERE SUP.user_id = ? AND S.id = ?;
+    `
+
+	if err := r.db.Raw(query, userID, systemID).Scan(&flatPermissions).Error; err != nil {
+		return responses.SystemAccess{}, err
+	}
+
+	// If no permissions found, return empty system access
+	if len(flatPermissions) == 0 {
+		return responses.SystemAccess{Roles: []*responses.RoleAccess{}}, nil
+	}
+
+	// Reconstruct the nested structure with only necessary fields
+	rolesMap := make(map[uint64]*responses.RoleAccess)
+	var roles []*responses.RoleAccess
+
+	for _, p := range flatPermissions {
+		// Find or create the role
+		role, roleExists := rolesMap[p.RoleID]
+		if !roleExists {
+			role = &responses.RoleAccess{
+				ID:          uint(p.RoleID),
+				Name:        p.RoleName,
+				Permissions: []responses.PermissionAccess{},
+			}
+			rolesMap[p.RoleID] = role
+			roles = append(roles, role)
+		}
+
+		// Add the permission to the role
+		role.Permissions = append(role.Permissions, responses.PermissionAccess{
+			ID:   uint(p.PermissionID),
+			Name: p.PermissionName,
+		})
+	}
+
+	// Create the simplified system access response
+	systemAccess := responses.SystemAccess{
+		Roles: roles,
+	}
+
+	return systemAccess, nil
 }

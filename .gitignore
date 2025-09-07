@@ -44,3 +44,4 @@ coverage.out
 node_modules
 scripts/_*.sql
 static/fonts
+tmp

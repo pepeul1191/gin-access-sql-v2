@@ -68,7 +68,7 @@ func SetupRouter(db *gorm.DB, store sessions.Store) *gin.Engine {
 	systemService := services.NewSystemService(systemRepo, userSystemRepo)
 	permissionService := services.NewPermissionService(permissionRepo)
 	userPermissionService := services.NewUserPermissionService(userPermissionRepo)
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(db, userRepo)
 	roleService := services.NewRoleService(roleRepo)
 	systemUserService := services.NewSystemUserService(db, userSystemRepo)
 
