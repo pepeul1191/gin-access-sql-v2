@@ -30,7 +30,7 @@ func main() {
 	router.Static("/static", "./static") // Mejor nombre que 'public'
 
 	// 7. Inicio del servidor
-	serverPort := config.GetEnv("SERVER_PORT", ":8080")
+	serverPort := config.GetEnv("SERVER_PORT", ":8085")
 	log.Printf("Server starting on %s", serverPort)
 	if err := router.Run(serverPort); err != nil {
 		log.Fatalf("Server failed: %v", err)

@@ -7,7 +7,7 @@ import (
 )
 
 func RegisterUserRoutes(r *gin.Engine, handler *UserHandler) {
-
+	// views
 	usersGroup := r.Group("/users", middleware.AuthRequired())
 	{
 		usersGroup.GET("/", handler.ListUsers)
@@ -17,4 +17,11 @@ func RegisterUserRoutes(r *gin.Engine, handler *UserHandler) {
 		usersGroup.GET("/:id/edit", handler.EditUserHandler)
 		usersGroup.GET("/:id/delete", handler.DeleteUserHandler)
 	}
+	// auth
+	authGroup := r.Group("/api/v1", middleware.XAuthTriggerRequired())
+	{
+		authGroup.POST("/sign-in/by-username", handler.APISignInHandler)
+	}
+	// apis
+
 }

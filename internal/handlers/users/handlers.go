@@ -4,6 +4,7 @@ import (
 	"accessv2/internal/domain"
 	"accessv2/internal/forms"
 	"accessv2/internal/services"
+
 	"accessv2/pkg/middleware"
 	"accessv2/pkg/utils"
 	"errors"
@@ -413,4 +414,11 @@ func (h *UserHandler) AssociatePermissionsHandler(c *gin.Context) {
 
 	// Redirigir al usuario de vuelta con un mensaje de éxito
 	c.Redirect(http.StatusFound, fmt.Sprintf("/systems/%d/users/%d?origin=%s&message=%s&type=success", systemID, userID, origin, url.QueryEscape("Permisos actualizados con éxito")))
+}
+
+func (h *UserHandler) APISignInHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Vamos bien",
+		"data":    "prueba"})
+	return
 }
