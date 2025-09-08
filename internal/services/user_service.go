@@ -5,12 +5,14 @@ import (
 	"accessv2/internal/forms"
 	"accessv2/internal/repositories"
 	"accessv2/internal/responses"
+	"os"
 
 	"accessv2/pkg/utils"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 
@@ -144,11 +146,38 @@ func (s *UserService) ValidateBySystemUsernamePassword(systemID uint64, username
 		return responses.UserWithAccess{}, err
 	}
 
+	// Generar el token JWT
+	expirationTime := time.Now().Add(24 * time.Hour) // Token válido por 24 horas
+	claims := &responses.CustomClaims{
+		UserID:   uint64(user.ID),
+		Username: user.Username,
+		Email:    user.Email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			Issuer:    "tu-aplicacion",
+		},
+	}
+
+	jwtSecret := os.Getenv("JWT_KEY")
+
+	if jwtSecret == "" {
+		return responses.UserWithAccess{}, errors.New("credenciales de administrador no configuradas")
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(jwtSecret))
+	if err != nil {
+		return responses.UserWithAccess{}, fmt.Errorf("Error al generar token: %w", err)
+	}
+
 	userWithAccess := responses.UserWithAccess{
 		User: responses.UserAccess{
 			ID:       user.ID,
 			Username: user.Username,
 			Email:    user.Email,
+			Token:    tokenString,
 			// Puedes incluir otros campos si los necesitas
 		},
 		Access: access,
