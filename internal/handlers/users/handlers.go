@@ -479,7 +479,8 @@ func (h *UserHandler) APISignInHandler(c *gin.Context) {
 
 		c.JSON(statusCode, responses.SignResponse{
 			Success: false,
-			Error:   errorMsg,
+			Message: errorMsg,
+			Error:   err.Error(),
 		})
 		return
 	}
