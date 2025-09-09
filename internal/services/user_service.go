@@ -158,6 +158,7 @@ func (s *UserService) ValidateBySystemUsernamePassword(systemID uint64, username
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Issuer:    "tu-aplicacion",
 		},
+		Roles: access.Roles,
 	}
 
 	jwtSecret := os.Getenv("JWT_KEY")
@@ -180,7 +181,7 @@ func (s *UserService) ValidateBySystemUsernamePassword(systemID uint64, username
 			Token:    tokenString,
 			// Puedes incluir otros campos si los necesitas
 		},
-		Access: access,
+		Roles: access.Roles,
 	}
 
 	return userWithAccess, nil

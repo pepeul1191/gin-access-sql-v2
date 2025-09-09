@@ -1,7 +1,9 @@
 // internal/responses/user_responses.go
 package responses
 
-import "github.com/golang-jwt/jwt/v5"
+import (
+	"github.com/golang-jwt/jwt/v5"
+)
 
 // En tu archivo domain/user.go o donde tengas las estructuras
 type SystemAccess struct {
@@ -20,8 +22,8 @@ type PermissionAccess struct {
 }
 
 type UserWithAccess struct {
-	User   UserAccess   `json:"user"`
-	Access SystemAccess `json:"access"`
+	User  UserAccess    `json:"user"`
+	Roles []*RoleAccess `json:"roles"`
 }
 
 type UserAccess struct {
@@ -40,8 +42,9 @@ type SignResponse struct {
 }
 
 type CustomClaims struct {
-	UserID   uint64 `json:"user_id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	UserID   uint64        `json:"user_id"`
+	Username string        `json:"username"`
+	Email    string        `json:"email"`
+	Roles    []*RoleAccess `json:"roles"`
 	jwt.RegisteredClaims
 }
