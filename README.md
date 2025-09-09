@@ -68,8 +68,8 @@ Instalar dependencias de go:
     # DB_PASSWORD=pass
     # DB_SSL_MODE=disable
     #### APP
-    BASE_URL=http://localhost:8080
-    STATIC_URL=http://localhost:8080/static
+    BASE_URL=http://localhost:8085
+    STATIC_URL=http://localhost:8085/static
     #### SEGURIDAD
     APP_NAME=PipsAuthz
     ADMIN_USERNAME=admin
@@ -77,13 +77,19 @@ Instalar dependencias de go:
     JWT_SECRET=mi_secreto_jwt_fuerte
     AUTH_HEADER=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
     PORT=5000
-    SECURE=false
+    SECURE=true
     MAX_FILE_SIZE_MB=5
     ALLOWED_FILE_EXTENSIONS=pdf,jpg,png,docx,jpeg
     ALLOWED_ORIGINS=https://tudominio.com,http://localhost:8000
     ALLOWED_METHODS=GET,POST,PUT,DELETE,OPTIONS
     ALLOWED_HEADERS=Content-Type,Authorization,X-Requested-With
     CORS_ENABLED=true
+
+    #JWT
+    JWT_KEY=k8sT!mZ$4KpQbR7sCv2EaXw&9LpQ
+    # access service
+    X_AUTH_ACCESS_SERVICE=dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
+    URL_ACCESS_SERVICE=http://localhost:8080/
     
 ### Migraciones con DBMATE
 
@@ -131,36 +137,36 @@ Generar UMLs:
     $ ./scripts/render_all_puml.sh
 
 
-project/
-├── cmd/
-│   └── app/
-│       └── main.go          # Punto de entrada
-├── internal/
-│   ├── domain/              # Modelos del dominio
-│   │   ├── user.go
-│   │   └── file.go
-│   ├── handlers/            # Controladores HTTP
-│   │   ├── auth_handler.go
-│   │   ├── file_handler.go
-│   │   └── handler.go       # Base handler
-│   ├── forms/               # Estructuras de validación
-│   │   ├── auth_form.go
-│   │   └── file_form.go
-│   ├── services/            # Lógica de negocio
-│   │   ├── auth_service.go
-│   │   ├── file_service.go
-│   │   └── interfaces.go    # Interfaces de servicios
-│   ├── repositories/        # Acceso a datos
-│   │   ├── user_repo.go
-│   │   └── file_repo.go
-│   └── config/              # Configuración
-│       └── config.go
-├── pkg/
-│   ├── middleware/          # Middlewares
-│   └── utils/               # Utilidades compartidas
-├── go.mod
-├── go.sum
-└── README.md
+    project/
+    ├── cmd/
+    │   └── app/
+    │       └── main.go          # Punto de entrada
+    ├── internal/
+    │   ├── domain/              # Modelos del dominio
+    │   │   ├── user.go
+    │   │   └── file.go
+    │   ├── handlers/            # Controladores HTTP
+    │   │   ├── auth_handler.go
+    │   │   ├── file_handler.go
+    │   │   └── handler.go       # Base handler
+    │   ├── forms/               # Estructuras de validación
+    │   │   ├── auth_form.go
+    │   │   └── file_form.go
+    │   ├── services/            # Lógica de negocio
+    │   │   ├── auth_service.go
+    │   │   ├── file_service.go
+    │   │   └── interfaces.go    # Interfaces de servicios
+    │   ├── repositories/        # Acceso a datos
+    │   │   ├── user_repo.go
+    │   │   └── file_repo.go
+    │   └── config/              # Configuración
+    │       └── config.go
+    ├── pkg/
+    │   ├── middleware/          # Middlewares
+    │   └── utils/               # Utilidades compartidas
+    ├── go.mod
+    ├── go.sum
+    └── README.md
 
 ---
 
