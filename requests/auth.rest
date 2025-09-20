@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:8085
+@xAuthAccess = dXNlci1zdGlja3lfc2VjcmV0XzEyMzQ1Njc
+
+POST {{baseUrl}}/api/v1/users/sign-in/by-username
+Content-Type: application/json
+Accept: application/json
+X-Auth-Trigger: {{xAuthAccess}}
+
+{
+  "username": "bmccormickx",
+  "password": "123",
+  "system_id": 1
+}

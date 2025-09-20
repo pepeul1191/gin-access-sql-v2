@@ -23,6 +23,7 @@ type PermissionAccess struct {
 
 type UserWithAccess struct {
 	User  UserAccess    `json:"user"`
+	Token string        `json:"token,omitempty"`
 	Roles []*RoleAccess `json:"roles"`
 }
 
@@ -30,7 +31,6 @@ type UserAccess struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	Email    string `json:"email"`
-	Token    string `json:"token,omitempty"`
 	// Solo incluir los campos que necesitas mostrar
 }
 

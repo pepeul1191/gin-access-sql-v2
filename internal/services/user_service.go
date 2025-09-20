@@ -178,9 +178,9 @@ func (s *UserService) ValidateBySystemUsernamePassword(systemID uint64, username
 			ID:       user.ID,
 			Username: user.Username,
 			Email:    user.Email,
-			Token:    tokenString,
 			// Puedes incluir otros campos si los necesitas
 		},
+		Token: tokenString,
 		Roles: access.Roles,
 	}
 
